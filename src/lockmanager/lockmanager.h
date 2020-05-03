@@ -1,13 +1,16 @@
 #pragma once
 #include "const.h"
 #include <string>
+#include <map>
+#include "bookable_lock.h"
+#include <pthread.h>
 
 /* manager of lock and global transaction information */
 class LockManager{
-
 public:
+    LockManager* get_instance();
     /* return dynamic_transaction_ID */
-    int start_transaction(uint static_transaction_ID);
+    int start_transaction();
     void end_transaction(uint dynamic_transaction_ID);
     void wait_for_transaction(uint dynamic_transaction_ID);
 
@@ -20,4 +23,11 @@ public:
 
     void ban_transactions();
     void allow_transactions();
+
+private:
+    LockManager* instance;
+    LockManager();
+    std::map<std::string, BookableLock*> index_locks;
+    std::map<std::string, BookableLock*> slot_locks;
+    pthread_rwlock_t index_locks_rwlock;
 };
