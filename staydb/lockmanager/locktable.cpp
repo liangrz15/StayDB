@@ -1,4 +1,4 @@
-#include "locktable.h"
+#include <staydb/lockmanager/locktable.h>
 
 LockTable::LockTable(){
     pthread_rwlock_init(&rwlock, 0);
@@ -30,7 +30,7 @@ void LockTable::lock(const std::string& key){
 void LockTable::unlock(const std::string& key){
     BookableLock* lock = nullptr;
     pthread_rwlock_rdlock(&rwlock);
-    BookableLock* lock = locks[key];
+    lock = locks[key];
     pthread_rwlock_unlock(&rwlock);
     lock->unlock();
 }
@@ -39,4 +39,12 @@ bool LockTable::occupy_lock(const std::string& key, uint applicant_ID, uint* occ
     BookableLock* lock = find_lock(key);
     bool lock_success = lock->occupy_lock(applicant_ID, occupier_ID);
     return lock_success;
+}
+
+void LockTable::occupy_unlock(const std::string& key, uint applicant_ID){
+    BookableLock* lock = nullptr;
+    pthread_rwlock_rdlock(&rwlock);
+    lock = locks[key];
+    pthread_rwlock_unlock(&rwlock);
+    lock->occupy_unlock(applicant_ID);
 }

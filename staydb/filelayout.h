@@ -61,7 +61,8 @@ struct LogItem{
     uint page_ID;
     uint offset;
     uint length;
-    uint largest_transaction_ID;
+    uint max_transaction_ID;
+    uint max_timestamp;
     uint log_ID;
     uint undo_log_ID;
     char old_value[sizeof(DataRecord)];

@@ -1,4 +1,4 @@
-#include "bookable_lock.h"
+#include <staydb/lockmanager/bookable_lock.h>
 #include <cassert>
 
 BookableLock::BookableLock(){
