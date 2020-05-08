@@ -3,7 +3,7 @@ typedef unsigned int uint;
 
 
 const int PAGE_SIZE = 4096;
-const int CHECKSUM_SIZE = 32;
+const int CHECKSUM_SIZE = sizeof(uint);
 
 const int MAX_KEY_LENGTH = 32;
 const int N_INDEX_ITEMS_PER_PAGE = 96;

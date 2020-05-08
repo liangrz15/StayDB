@@ -129,10 +129,12 @@ ExecuteStatus Worker::execute_insert(const std::string& key, int value){
     uint wait_transaction_ID;
     executor_error_t err = executor.insert_key(key, value, &wait_transaction_ID);
     if(err == ERROR_WAIT_WRITE){
+        executor.abort();
         lock_manager->wait_for_transaction(wait_transaction_ID);
         return EXECUTE_ABORT_REDO;
     }
     else if(err == ERROR_INSERT_EXIST){
+        executor.abort();
         pthread_mutex_lock(&cout_mutex);
         std::cout << "thread " << worker_ID << ": " << std::endl;
         std::cout << "insert a key that exists: " << key << std::endl;
@@ -172,6 +174,7 @@ ExecuteStatus Worker::execute_read(const std::string& key){
         std::cout << "read a key that does not exist: " << key << std::endl;
         std::cout << "aborted" << std::endl;
         pthread_mutex_unlock(&cout_mutex);
+        executor.abort();
         return EXECUTE_ABORT_FINISH;
     }
     assert(err = ERROR_NONE);
@@ -185,6 +188,7 @@ ExecuteStatus Worker::execute_set(const std::string& key, const std::string& fir
     int value;
     executor_error_t err = get_value_for_key(first_operand, &value);
     if(err == ERROR_READ_NOT_EXIST){
+        executor.abort();
         pthread_mutex_lock(&cout_mutex);
         std::cout << "thread " << worker_ID << ": " << std::endl;
         std::cout << "read a key that does not exist: " << key << std::endl;
@@ -208,8 +212,22 @@ ExecuteStatus Worker::execute_set(const std::string& key, const std::string& fir
     uint wait_transaction_ID;
     err = executor.write_key(key, value, &wait_transaction_ID);
     if(err == ERROR_WAIT_WRITE){
+        executor.abort();
         lock_manager->wait_for_transaction(wait_transaction_ID);
         return EXECUTE_ABORT_REDO;
+    }
+    else if(err == ERROR_RETRY_WRITE){
+        executor.abort();
+        return EXECUTE_ABORT_REDO;
+    }
+    else if(err == ERROR_WRITE_NOT_EXIST){
+        executor.abort();
+        pthread_mutex_lock(&cout_mutex);
+        std::cout << "thread " << worker_ID << ": " << std::endl;
+        std::cout << "update a key that does not exist: " << key << std::endl;
+        std::cout << "aborted" << std::endl;
+        pthread_mutex_unlock(&cout_mutex);
+        return EXECUTE_ABORT_FINISH;
     }
     assert(err == ERROR_NONE);
     return EXECUTE_NORMAL;

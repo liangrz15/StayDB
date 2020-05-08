@@ -25,10 +25,15 @@ public:
 
     bool key_write_lock(const std::string& key, uint transaction_ID, uint* occupier_transaction_ID);
     void key_write_unlock(const std::string& key, uint static_transaction_ID);
-    void index_lock(const std::string& key);
-    void index_unlock(const std::string& key);
-    void slot_lock(const std::string& hash);
-    void slot_unlock(const std::string& hash);
+    void index_slot_read_lock(const std::string& hash);
+    void index_slot_write_lock(const std::string& hash);
+    void index_slot_unlock(const std::string& hash);
+    void data_slot_read_lock(const std::string& hash);
+    void data_slot_write_lock(const std::string& hash);
+    void data_slot_unlock(const std::string& hash);
+    void header_read_lock(const std::string& hash);
+    void header_write_lock(const std::string& hash);
+    void header_unlock(const std::string& hash);
 
     void ban_transactions();
     void allow_transactions();
@@ -40,8 +45,9 @@ public:
 private:
     static LockManager* instance;
     LockManager(uint max_transaction_ID, uint max_timestamp);
-    LockTable index_locktable;
-    LockTable slot_locktable;
+    LockTable index_slot_locktable;
+    LockTable data_slot_locktable;
+    LockTable header_locktable;
     LockTable key_write_locktable;
     WaitQueueTable wait_queue_table;
     uint max_allocated_timestamp;

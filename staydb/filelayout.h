@@ -25,12 +25,16 @@ struct IndexFilePage{
 
 
 struct DataRecord{
+    DataRecord(bool _first_slot_flag, bool _delete_flag, int _value, uint _prev_page_ID,
+        uint _prev_slot_ID, uint _timestamp): first_slot_flag(_first_slot_flag), 
+        delete_flag(_delete_flag), value(_value), prev_page_ID(_prev_page_ID), 
+        prev_slot_ID(_prev_slot_ID), timestamp(_timestamp){}
     bool first_slot_flag;
     bool delete_flag;
     int value;
     uint prev_page_ID;
     uint prev_slot_ID;
-    unsigned long long timestamp;
+    uint timestamp;
 };
 
 const int DATA_FILE_PAGE_SIZE = PAGE_SIZE - N_DATA_RECORDS_PER_PAGE * (sizeof(DataRecord)) - N_DATA_RECORDS_PER_PAGE / 8;
@@ -41,17 +45,17 @@ struct DataFilePage{
 };
 
 enum LogType{
-    DataRecordLog,
-    DataSlotLog,
-    IndexItemLog,
-    IndexSlotLog,
-    DataRecordUndoLog,
-    DataSlotUndoLog,
-    IndexItemUndoLog,
-    IndexSlotUndoLog,
-    CommitLog,
-    AbortLog,
-    CheckpointLog    
+    DATA_RECORD_LOG,
+    DATA_SLOT_LOG,
+    INDEX_ITEM_LOG,
+    INDEX_SLOT_LOG,
+    DATA_RECORD_UNDO_LOG,
+    DATA_SLOT_UNDO_LOG,
+    INDEX_ITEM_UNDO_LOG,
+    INDEX_SLOT_UNDO_LOG,
+    COMMIT_LOG,
+    ABORT_LOG,
+    CHECKPOINT_LOG    
 };
 
 struct LogItem{

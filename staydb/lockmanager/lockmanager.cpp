@@ -24,13 +24,42 @@ void LockManager::create_instance(uint max_transaction_ID, uint max_timestamp){
 }
 
 
-void LockManager::index_lock(const std::string& key){
-    index_locktable.lock(key);
+void LockManager::index_slot_read_lock(const std::string& hash){
+    index_slot_locktable.read_lock(hash);
 }
 
-void LockManager::index_unlock(const std::string& key){
-    index_locktable.unlock(key);
+void LockManager::index_slot_write_lock(const std::string& hash){
+    index_slot_locktable.write_lock(hash);
 }
+
+void LockManager::index_slot_unlock(const std::string& hash){
+    index_slot_locktable.unlock(hash);
+}
+
+void LockManager::data_slot_read_lock(const std::string& hash){
+    data_slot_locktable.read_lock(hash);
+}
+
+void LockManager::data_slot_write_lock(const std::string& hash){
+    data_slot_locktable.write_lock(hash);
+}
+
+void LockManager::data_slot_unlock(const std::string& hash){
+    data_slot_locktable.unlock(hash);
+}
+
+void LockManager::header_read_lock(const std::string& hash){
+    header_locktable.read_lock(hash);
+}
+
+void LockManager::header_write_lock(const std::string& hash){
+    header_locktable.write_lock(hash);
+}
+
+void LockManager::header_unlock(const std::string& hash){
+    header_locktable.unlock(hash);
+}
+
 
 bool LockManager::key_write_lock(const std::string& key, uint static_transaction_ID, uint* occupier_transaction_ID){
     return key_write_locktable.occupy_lock(key, static_transaction_ID, occupier_transaction_ID);
@@ -38,14 +67,6 @@ bool LockManager::key_write_lock(const std::string& key, uint static_transaction
 
 void LockManager::key_write_unlock(const std::string& key, uint static_transaction_ID){
     key_write_locktable.occupy_unlock(key, static_transaction_ID);
-}
-
-void LockManager::slot_lock(const std::string& hash){
-    slot_locktable.lock(hash);
-}
-
-void LockManager::slot_unlock(const std::string& hash){
-    slot_locktable.unlock(hash);
 }
 
 uint LockManager::get_read_timestamp(){

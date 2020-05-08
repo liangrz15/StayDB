@@ -5,7 +5,8 @@
 class BookableLock{
 public:
     void book();
-    void lock();
+    void read_lock();
+    void write_lock();
     void unlock();
     bool occupy_lock(uint applicant_ID, uint* occupier_ID);
     void occupy_unlock(uint applicant_ID);
@@ -19,5 +20,5 @@ private:
     bool occupied;
     uint occupier_ID;
     pthread_mutex_t book_mutex;
-    pthread_mutex_t mutex;
+    pthread_rwlock_t rwlock;
 };

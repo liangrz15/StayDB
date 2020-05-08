@@ -22,9 +22,14 @@ BookableLock* LockTable::find_lock(const std::string& key){
     return lock;
 }
 
-void LockTable::lock(const std::string& key){
+void LockTable::read_lock(const std::string& key){
     BookableLock* lock = find_lock(key);
-    lock->lock();
+    lock->read_lock();
+}
+
+void LockTable::write_lock(const std::string& key){
+    BookableLock* lock = find_lock(key);
+    lock->write_lock();
 }
 
 void LockTable::unlock(const std::string& key){

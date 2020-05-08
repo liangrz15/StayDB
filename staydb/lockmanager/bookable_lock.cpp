@@ -7,7 +7,7 @@ BookableLock::BookableLock(){
     occupied = false;
     occupier_ID = 0;
     pthread_mutex_init(&book_mutex, 0);
-    pthread_mutex_init(&mutex, 0);
+    pthread_rwlock_init(&rwlock, 0);
 }
 
 BookableLock::~BookableLock(){
@@ -20,13 +20,22 @@ void BookableLock::book(){
     pthread_mutex_unlock(&book_mutex);
 }
 
-void BookableLock::lock(){
+void BookableLock::read_lock(){
     pthread_mutex_lock(&book_mutex);
     n_booked -= 1;
     n_locked += 1;
     pthread_mutex_unlock(&book_mutex);
 
-    pthread_mutex_lock(&mutex);
+    pthread_rwlock_rdlock(&rwlock);
+}
+
+void BookableLock::write_lock(){
+    pthread_mutex_lock(&book_mutex);
+    n_booked -= 1;
+    n_locked += 1;
+    pthread_mutex_unlock(&book_mutex);
+
+    pthread_rwlock_wrlock(&rwlock);
 }
 
 void BookableLock::unlock(){
@@ -34,7 +43,7 @@ void BookableLock::unlock(){
     n_locked -= 1;
     pthread_mutex_unlock(&book_mutex);
 
-    pthread_mutex_unlock(&mutex);
+    pthread_rwlock_unlock(&rwlock);
 }
 
 bool BookableLock::occupy_lock(uint applicant_ID, uint* occupier_ID){
