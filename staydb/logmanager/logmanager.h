@@ -9,7 +9,8 @@ public:
                 uint page_ID, uint offset, uint length, const void* old_value, const void* new_value);
     void redo_logs(std::vector<LogItem> log_items);
     void recover();
+    void flush_logs();
 
 private:
-    LogManager* instance;
+    static LogManager* instance;
 };

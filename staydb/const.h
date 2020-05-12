@@ -19,5 +19,10 @@ const std::string INDEX_TYPE = "index";
 const std::string DATA_TYPE = "data";
 const std::string BACKUP_TYPE = "backup";
 
+const int DATA_POOL_SIZE = 60000;
+const int DATA_POOL_MAX_FD = 512;
+const int LOG_POOL_SIZE = 10;
+const int LOG_POOL_MAX_FD = 10;
+
 
 
