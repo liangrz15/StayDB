@@ -4,6 +4,7 @@
 #include <staydb/lockmanager/lockmanager.h>
 #include <staydb/filelayout.h>
 #include <staydb/logmanager/logmanager.h>
+#include <staydb/pagemanager/pagemanager.h>
 #include <vector>
 
 enum executor_error_t{
@@ -48,12 +49,14 @@ public:
 private:
     LockManager* lock_manager;
     LogManager* log_manager;
+    PageManager* page_manager;
     uint static_transaction_ID;
     uint dynamic_transaction_ID;
     uint read_timestamp;
     uint write_timestamp;
     std::vector<LogItem> log_items;
     std::vector<WriteItem> write_items;
+    std::vector<std::string> locked_write_keys;
     std::string calc_hash(const std::string& key);
     uint calc_checksum(const unsigned char *buf, int len);
 
@@ -73,6 +76,20 @@ private:
     /* insert_index happen during commit*/
     void insert_index(const std::string& hash, const std::string& key, uint n_index_pages, 
                         uint record_page_ID, uint record_slot_ID);
+
+
+    bool check_header_valid(const HeaderFilePage* header_page);
+    void fill_header_checksum(HeaderFilePage* header_page);
+    static bool get_index_slot_bit(const IndexFilePage* index_page, uint slot_ID);
+    static void set_index_slot_bit(IndexFilePage* index_page, uint slot_ID, bool occupy, uint* offset, 
+                                    unsigned char* old_value, unsigned char* new_value);
+    static bool get_data_slot_bit(const DataFilePage* data_page, uint slot_ID);
+    static void set_data_slot_bit(DataFilePage* data_page, uint slot_ID, bool occupy, uint* offset,
+                                    unsigned char* old_value, unsigned char* new_value);
+    static void fill_index_item(IndexItem* index_item, const std::string& key, uint last_page_ID, uint last_slot_ID);
+    bool try_insert_index_to_page(const std::string& hash, const std::string& key, uint index_page_ID, 
+                    uint record_page_ID, uint record_slot_ID);
+    bool try_insert_record_to_page(const std::string& hash, uint page_ID, const DataRecord& record, uint* inserted_slot_ID);
 
 
 

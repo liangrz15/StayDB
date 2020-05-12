@@ -12,8 +12,8 @@ struct HeaderFilePage{
 
 struct IndexItem{
     char key[MAX_KEY_LENGTH]; //32
-    uint page_ID;
-    uint lastSlot_ID;
+    uint last_page_ID;
+    uint last_slot_ID;
 };
 
 const int INDEX_FILE_PADDING_LENGTH = PAGE_SIZE - N_INDEX_ITEMS_PER_PAGE * (sizeof(IndexItem)) - N_INDEX_ITEMS_PER_PAGE / 8;
@@ -45,9 +45,11 @@ struct DataFilePage{
 };
 
 enum LogType{
-    DATA_RECORD_LOG,
+    DATA_RECORD_INSERT_LOG,
+    DATA_RECORD_UPDATE_LOG,
     DATA_SLOT_LOG,
-    INDEX_ITEM_LOG,
+    INDEX_ITEM_INSERT_LOG,
+    INDEX_ITEM_UPDATE_LOG,
     INDEX_SLOT_LOG,
     DATA_RECORD_UNDO_LOG,
     DATA_SLOT_UNDO_LOG,
@@ -61,7 +63,6 @@ enum LogType{
 struct LogItem{
     LogType log_type;
     uint transaction_ID;
-    char key[MAX_KEY_LENGTH]; //32
     uint page_ID;
     uint offset;
     uint length;
@@ -69,8 +70,8 @@ struct LogItem{
     uint max_timestamp;
     uint log_ID;
     uint undo_log_ID;
-    char old_value[sizeof(DataRecord)];
-    char new_value[sizeof(DataRecord)];
+    char old_value[sizeof(IndexItem)];
+    char new_value[sizeof(IndexItem)];
 };
 
 
