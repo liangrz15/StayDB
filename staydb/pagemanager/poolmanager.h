@@ -27,7 +27,7 @@ struct PageMetadata{
 };
 
 struct FileMetadata{
-    FileMetadata(int _fd): fd(_fd), n_pages(0){}
+    FileMetadata(int _fd = 0): fd(_fd), n_pages(0){}
     int fd;
     int n_pages;
 };
@@ -36,7 +36,7 @@ struct FilePagePair{
     FilePagePair(const std::string& _file_name, uint _page_ID): file_name(_file_name), page_ID(_page_ID){} 
     uint page_ID;
     std::string file_name;
-    bool operator<(const FilePagePair& rhs){
+    bool operator<(const FilePagePair& rhs) const{
         if(file_name == rhs.file_name){
             return page_ID < rhs.page_ID;
         }

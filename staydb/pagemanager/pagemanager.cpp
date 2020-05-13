@@ -1,11 +1,11 @@
 #include <staydb/pagemanager/pagemanager.h>
+#include <staydb/logmanager/logmanager.h>
 #include <staydb/const.h>
 
 PageManager* PageManager::instance = nullptr;
 
 PageManager::PageManager(){
     data_pool_manager = new PoolManager(DATA_POOL_SIZE, PAGE_SIZE, DATA_POOL_MAX_FD);
-    log_pool_manager = new PoolManager(LOG_POOL_SIZE, PAGE_SIZE, LOG_POOL_MAX_FD);
 }
 PageManager::~PageManager(){
     delete data_pool_manager;
@@ -19,9 +19,6 @@ PageManager* PageManager::get_instance(){
     return instance;
 }
 
-void PageManager::set_log_manager(LogManager* _log_manager){
-    log_manager = _log_manager;
-}
 
 int PageManager::get_page(const std::string& hash, const std::string& type, uint page_ID, void** page){
     const std::string& dir_name = hash_to_dir_path(hash);
@@ -65,7 +62,7 @@ void PageManager::flush_all_log_pages(){
 }
 
 bool PageManager::flush_log_data_pool(){
-    log_manager->flush_logs();
+    LogManager::get_instance()->flush_logs();
     return true;
 }
 

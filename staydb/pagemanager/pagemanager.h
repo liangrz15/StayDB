@@ -1,6 +1,5 @@
 #pragma once
 #include <string>
-#include <staydb/logmanager/logmanager.h>
 #include <staydb/pagemanager/poolmanager.h>
 
 class PageManager{
@@ -16,13 +15,11 @@ public:
     void flush_log_page(int pool_page_ID);
     void mark_log_page_dirty(int pool_page_ID);
     void flush_all_log_pages();
-    void set_log_manager(LogManager* _log_manager);
 
 private:
     PageManager();
     ~PageManager();
     static PageManager* instance;
-    static LogManager* log_manager;
     PoolManager* data_pool_manager;
     PoolManager* log_pool_manager;
     static bool flush_log_data_pool();
