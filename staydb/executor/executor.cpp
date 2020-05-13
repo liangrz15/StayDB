@@ -139,8 +139,8 @@ executor_error_t Executor::delete_key(const std::string& key, uint* wait_transac
 }
 
 executor_error_t Executor::abort(){
-    log_manager->redo_logs(log_items);
-    log_manager->add_log(ABORT_LOG, dynamic_transaction_ID, 0, 0, 0, nullptr, nullptr);
+    log_manager->undo_logs(log_items);
+    log_manager->add_log(ABORT_LOG, dynamic_transaction_ID, 0, 0, 0, nullptr, nullptr, nullptr);
     for(std::string key: locked_write_keys){
         lock_manager->key_write_unlock(key, static_transaction_ID);
     }
@@ -160,7 +160,10 @@ executor_error_t Executor::commit(){
                             write_item.inserted_slot_ID);
         }
     }
-    log_manager->add_log(COMMIT_LOG, dynamic_transaction_ID, 0, 0, 0, nullptr, nullptr);
+    log_manager->add_log(COMMIT_LOG, dynamic_transaction_ID, 0, 0, 0, nullptr, nullptr, nullptr);
+    if(!write_items.empty()){
+        log_manager->flush_logs();
+    }
     for(std::string key: locked_write_keys){
         lock_manager->key_write_unlock(key, static_transaction_ID);
     }
@@ -178,7 +181,7 @@ void Executor::reset(uint static_transaction_ID){
 }
 
 std::string Executor::calc_hash(const std::string& key){
-    return md5(key);
+    return md5(key).substr(0, HASH_LENGTH);
 }
 
 uint Executor::calc_checksum(const unsigned char *buf, int len){
@@ -296,7 +299,7 @@ void Executor::insert_record(const std::string& hash, uint n_data_pages, const D
     assert(try_insert_record_to_page(hash, header_page->n_data_pages, record, inserted_slot_ID));
 
     HeaderFilePage* backup_page = nullptr;
-    int backup_page_pool_ID = page_manager->get_page(hash, BACKUP_TYPE, 0, (void**)header_page);
+    int backup_page_pool_ID = page_manager->get_page(hash, BACKUP_TYPE, 0, (void**)backup_page);
     backup_page->n_data_pages = header_page->n_data_pages + 1;
     backup_page->n_index_pages = header_page->n_index_pages;
     fill_header_checksum(backup_page);
@@ -318,7 +321,7 @@ void Executor::update_record(const std::string& hash, uint record_page_ID, uint 
     DataRecord old_record = data_page->data_records[record_slot_ID];
     data_page->data_records[record_slot_ID].timestamp = write_timestamp;
     log_manager->add_log(DATA_RECORD_UPDATE_LOG, dynamic_transaction_ID, record_page_ID, record_slot_ID * sizeof(DataRecord),
-                            sizeof(DataRecord), &old_record, &data_page->data_records[record_slot_ID]);
+                            sizeof(DataRecord), hash.c_str(), &old_record, &data_page->data_records[record_slot_ID]);
     page_manager->mark_page_dirty(data_page_pool_ID);
     page_manager->release_page(data_page_pool_ID);
 }
@@ -333,7 +336,7 @@ void Executor::update_index(const std::string& hash, uint index_page_ID, uint in
     index_page->index_items[index_slot_ID].last_slot_ID = record_slot_ID;
     index_page->index_items[index_slot_ID].last_page_ID = record_page_ID;
     log_manager->add_log(INDEX_ITEM_UPDATE_LOG, dynamic_transaction_ID, index_page_ID, index_slot_ID * sizeof(IndexItem),
-                            sizeof(IndexItem), &old_item, &index_page->index_items[index_slot_ID]); 
+                            sizeof(IndexItem), hash.c_str(), &old_item, &index_page->index_items[index_slot_ID]); 
     page_manager->mark_page_dirty(index_page_pool_ID);
     page_manager->release_page(index_page_pool_ID);
 }
@@ -370,7 +373,6 @@ void Executor::insert_index(const std::string& hash, const std::string& key, uin
 
     HeaderFilePage* backup_page = nullptr;
     int backup_pool_ID = page_manager->get_page(hash, BACKUP_TYPE, 0, (void**)backup_page);
-    bool backup_valid = check_header_valid(backup_page);
 
     backup_page->n_data_pages = header_page->n_data_pages;
     backup_page->n_index_pages = header_page->n_index_pages + 1;
@@ -393,7 +395,7 @@ bool Executor::check_header_valid(const HeaderFilePage* header_page){
 }
 
 void Executor::fill_header_checksum(HeaderFilePage* header_page){
-    header_page->check_sum = calc_checksum((const unsigned char*)(&header_page),  PAGE_SIZE - CHECKSUM_SIZE);
+    header_page->check_sum = calc_checksum((const unsigned char*)(header_page),  PAGE_SIZE - CHECKSUM_SIZE);
 }
 
 bool Executor::get_index_slot_bit(const IndexFilePage* index_page, uint slot_ID){
@@ -467,11 +469,11 @@ bool Executor::try_insert_index_to_page(const std::string& hash, const std::stri
             unsigned char new_value;
             set_index_slot_bit(index_page, slot_ID, true, &offset, &old_value, &new_value);
             log_manager->add_log(INDEX_SLOT_LOG, dynamic_transaction_ID, index_page_ID, offset, sizeof(unsigned char),
-                                    &old_value, &new_value);
+                                    hash.c_str(), &old_value, &new_value);
             IndexItem old_item = index_page->index_items[slot_ID];
             fill_index_item(&index_page->index_items[slot_ID], key, record_page_ID, record_slot_ID);
             log_manager->add_log(INDEX_ITEM_INSERT_LOG, dynamic_transaction_ID, index_page_ID, slot_ID * sizeof(IndexItem),
-                        sizeof(IndexItem), &old_item, &index_page->index_items[slot_ID]); 
+                        sizeof(IndexItem), hash.c_str(), &old_item, &index_page->index_items[slot_ID]); 
             page_manager->mark_page_dirty(index_page_pool_ID);
             page_manager->release_page(index_page_pool_ID);
             return true;
@@ -491,11 +493,11 @@ bool Executor::try_insert_record_to_page(const std::string& hash, uint page_ID, 
             unsigned char new_value;
             set_data_slot_bit(data_page, slot_ID, true, &offset, &old_value, &new_value);
             log_manager->add_log(DATA_SLOT_LOG, dynamic_transaction_ID, page_ID, offset, sizeof(unsigned char),
-                                    &old_value, &new_value);
+                                    hash.c_str(), &old_value, &new_value);
             DataRecord old_record = data_page->data_records[slot_ID];
             data_page->data_records[slot_ID] = record;
             log_manager->add_log(DATA_RECORD_INSERT_LOG, dynamic_transaction_ID, page_ID, slot_ID * sizeof(DataRecord),
-                                    sizeof(DataRecord), &old_record, &record);
+                                    sizeof(DataRecord), hash.c_str(), &old_record, &record);
             page_manager->mark_page_dirty(data_page_pool_ID);
             page_manager->release_page(data_page_pool_ID);
             *inserted_slot_ID = slot_ID;

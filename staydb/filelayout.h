@@ -1,11 +1,18 @@
 #pragma once
 #include "const.h"
 
-const int HEADER_FILE_PADDING_LENGTH = PAGE_SIZE - 2 * sizeof(unsigned int) - CHECKSUM_SIZE;
+const int HEADER_FILE_PADDING_LENGTH = PAGE_SIZE - 2 * sizeof(uint) - CHECKSUM_SIZE;
 struct HeaderFilePage{
     uint n_index_pages;
     uint n_data_pages;
     char padding[HEADER_FILE_PADDING_LENGTH];
+    uint check_sum;
+};
+
+const int LOG_HEADER_FILE_PADDING_LENGTH = PAGE_SIZE - sizeof(uint) - CHECKSUM_SIZE;
+struct LogHeaderFilePage{
+    uint n_log_pages;
+    char padding[LOG_HEADER_FILE_PADDING_LENGTH];
     uint check_sum;
 };
 
@@ -70,6 +77,7 @@ struct LogItem{
     uint max_timestamp;
     uint log_ID;
     uint undo_log_ID;
+    char hash[HASH_LENGTH + 1];
     char old_value[sizeof(IndexItem)];
     char new_value[sizeof(IndexItem)];
 };
