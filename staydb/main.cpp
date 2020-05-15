@@ -29,17 +29,18 @@ int main(){
     pthread_mutex_init(&cout_mutex, 0);
     std::cout << "Welcome to StayDB" << std::endl;
 
+    LockManager::create_instance(0, 0);
     LockManager* lock_manager = LockManager::get_instance();
     PageManager* page_manager = PageManager::get_instance();
     LogManager* log_manager = LogManager::get_instance();
 
     pthread_t prepare_thread;
-    WorkerTask prepare_task = WorkerTask(Worker(0), "inputs/data_prepare", "inputs/data_prepare_out.txt");
+    WorkerTask prepare_task = WorkerTask(Worker(0), "../inputs/data_prepare", "../inputs/data_prepare_out.txt");
     pthread_create(&prepare_thread, 0, worker_thread, &prepare_task);
     pthread_join(prepare_thread, 0);
 
     pthread_t task1_thread;
-    WorkerTask task1 = WorkerTask(Worker(1), "inputs/thread_1", "inputs/thread_1_out.txt");
+    WorkerTask task1 = WorkerTask(Worker(1), "../inputs/thread_1", "../inputs/thread_1_out.txt");
     pthread_create(&task1_thread, 0, worker_thread, &task1_thread);
     pthread_join(task1_thread, 0);
     return 0;
