@@ -41,8 +41,8 @@ struct FileMetadata{
 
 struct FilePagePair{
     FilePagePair(const std::string& _file_name, uint _page_ID): file_name(_file_name), page_ID(_page_ID){} 
-    uint page_ID;
     std::string file_name;
+    uint page_ID;
     bool operator<(const FilePagePair& rhs) const{
         if(file_name == rhs.file_name){
             return page_ID < rhs.page_ID;
@@ -56,7 +56,7 @@ struct FilePagePair{
 
 class PoolManager{
 public:
-    PoolManager(uint _n_pages, uint _page_size, int _max_n_fds);
+    PoolManager(uint _n_pages, uint _page_size, uint _max_n_fds);
     ~PoolManager();
     int get_page(const std::string& dir_path, const std::string& base_name, uint page_ID, void** page, std::function<bool()> flush_log);
     void release_page(int pool_page_ID);
@@ -69,7 +69,7 @@ private:
     pthread_mutex_t mutex;
     uint n_pages;
     uint page_size;
-    int max_n_fds;
+    uint max_n_fds;
     bool* free_bitmap;
     PageMetadata* page_metadata_array;
     char* buf;

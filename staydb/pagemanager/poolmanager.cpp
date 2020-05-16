@@ -5,14 +5,14 @@
 #include <unistd.h>
 #include <cstring>
 
-PoolManager::PoolManager(uint _n_pages, uint _page_size, int _max_n_fds){
+PoolManager::PoolManager(uint _n_pages, uint _page_size, uint _max_n_fds){
     logger = log4cplus::Logger::getInstance(LOG4CPLUS_TEXT("poolmanager"));
     n_pages = _n_pages;
     page_size = _page_size;
     max_n_fds = _max_n_fds;
     pthread_mutex_init(&mutex, 0);
     free_bitmap = new bool[n_pages];
-    for(int i = 0; i < n_pages; i++){
+    for(uint i = 0; i < n_pages; i++){
         free_bitmap[i] = true;
     }
     page_metadata_array = new PageMetadata[n_pages];
@@ -112,7 +112,7 @@ void PoolManager::mark_page_dirty(int pool_page_ID){
 
 void PoolManager::flush_all_pages(){
     pthread_mutex_lock(&mutex);
-    for(int i = 0; i < n_pages; i++){
+    for(uint i = 0; i < n_pages; i++){
         if(!free_bitmap[i]){
             if(page_metadata_array[i].dirty){
                 _flush_page(i);
@@ -123,7 +123,6 @@ void PoolManager::flush_all_pages(){
 }
 
 bool PoolManager::clean_pool(std::function<bool()> flush_log){
-    int n_cleaned_page = 0;
     while(true){
         auto it = LRU_queue.begin();
         assert(it != LRU_queue.end());
@@ -142,27 +141,22 @@ bool PoolManager::clean_pool(std::function<bool()> flush_log){
     if(!flush_log()){
         return false;
     }
-    while(true){
-        auto it = LRU_queue.begin();
-        if(it == LRU_queue.end()){
-            return true;
-        }
-        uint page_pool_ID = it->page_pool_ID;
-        const PageMetadata& page_metadata = page_metadata_array[page_pool_ID];
-        if(page_metadata.n_readers == 0){
-            if(page_metadata.dirty){
-                _flush_page(page_pool_ID);
+    int n_cleaned_page = 0;
+    for(uint i = 0; i < n_pages; i++){
+        if(!free_bitmap[i]){
+            const PageMetadata& page_metadata = page_metadata_array[i];
+            if(page_metadata.n_readers == 0){
+                n_cleaned_page++;
+                if(page_metadata.dirty){
+                    _flush_page(i);
+                }
+                clean_pool_pos(i);
             }
-            clean_pool_pos(page_pool_ID);
-            if(file_metadata.size() < max_n_fds){
-                return true;
-            }
-        }
-        else{
-            break;
         }
     }
-
+    assert(n_cleaned_page > 0);
+    assert(file_metadata.size() < max_n_fds);
+    return true;
 }
 
 void PoolManager::clean_pool_pos(uint page_pool_ID){
@@ -192,7 +186,8 @@ bool PoolManager::get_free_pool_page(uint* page_pool_ID){
 void PoolManager::read_page_from_file(int fd, uint page_ID, void* page_buf){
     lseek(fd, page_ID * page_size, SEEK_SET);
     int size = read(fd, page_buf, page_size);
-    if(size < page_size){
+    assert(size >= 0);
+    if((uint)size < page_size){
         memset(page_buf, 0, page_size);
     }
 }

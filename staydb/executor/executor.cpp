@@ -259,6 +259,7 @@ bool Executor::find_index(const std::string& hash, const std::string& key, uint 
                 }
             }
         }
+        page_manager->release_page(index_page_pool_ID);
         if(found){
             break;
         }
@@ -463,11 +464,11 @@ void Executor::set_data_slot_bit(DataFilePage* data_page, uint slot_ID, bool occ
     unsigned char old = data_page->bitmap[group_ID];
     *old_value = old;
     if(occupy){
-        unsigned char mask = 1 << slot_ID;
+        unsigned char mask = 1 << bit_ID;
         data_page->bitmap[group_ID] |= mask;
     }
     else{
-        unsigned char mask = 255 - (1 << slot_ID);
+        unsigned char mask = 255 - (1 << bit_ID);
         data_page->bitmap[group_ID] &= mask;
     }
     *new_value = data_page->bitmap[group_ID];
@@ -501,6 +502,7 @@ bool Executor::try_insert_index_to_page(const std::string& hash, const std::stri
             return true;
         }
     }
+    page_manager->release_page(index_page_pool_ID);
     return false;
 }
 
@@ -529,5 +531,6 @@ bool Executor::try_insert_record_to_page(const std::string& hash, uint page_ID, 
             return true;
         }
     }
+    page_manager->release_page(data_page_pool_ID);
     return false;
 }

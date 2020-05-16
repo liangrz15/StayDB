@@ -14,7 +14,7 @@ INC_FLAGS := $(addprefix -I,$(INC_DIRS))
 CPPFLAGS ?= $(INC_FLAGS) -MMD -MP 
 
 $(BUILD_DIR)/$(TARGET_EXEC): $(OBJS)
-	$(CXX) $(OBJS) -o $@ $(LDFLAGS) -pthread -llog4cplus -std=c++11
+	$(CXX) $(OBJS) -o $@ $(LDFLAGS) -Wall -pthread -llog4cplus -g -std=c++11
 
 # assembly
 $(BUILD_DIR)/%.s.o: %.s
@@ -29,13 +29,18 @@ $(BUILD_DIR)/%.c.o: %.c
 # c++ source
 $(BUILD_DIR)/%.cpp.o: %.cpp
 	$(MKDIR_P) $(dir $@)
-	$(CXX) $(CPPFLAGS) $(CXXFLAGS) -c $< -pthread -llog4cplus -std=c++11 -o $@
+	$(CXX) $(CPPFLAGS) $(CXXFLAGS) -c $< -Wall -pthread -llog4cplus -g -std=c++11 -o $@
 
 
 .PHONY: clean
 
 clean:
 	$(RM) -r $(BUILD_DIR)
+
+run:
+	-rm -r db
+	-rm logging.txt
+	./build/a.out
 
 -include $(DEPS)
 

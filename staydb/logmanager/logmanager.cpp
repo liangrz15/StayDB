@@ -60,6 +60,7 @@ LogItem LogManager::add_log(LogType log_type, uint transaction_ID,
                                                 hash, old_value, new_value);
     add_log_item_to_page(log_item);
     pthread_mutex_unlock(&mutex);
+    return log_item;
 }
 
 void LogManager::undo_logs(std::vector<LogItem> log_items){
@@ -203,6 +204,7 @@ LogItem LogManager::build_normal_log_item(LogType log_type, uint transaction_ID,
         assert(length != 0);
         memcpy(item.new_value, new_value, length);
     }
+    return item;
 }
 
 LogItem LogManager::build_undo_log_item(const LogItem& log_item){
@@ -229,6 +231,7 @@ LogItem LogManager::build_undo_log_item(const LogItem& log_item){
     memcpy(undo_log_item.new_value, log_item.old_value, log_item.length);
     memcpy(undo_log_item.old_value, log_item.new_value, log_item.length);
     //memcpy(&undo_log_item.
+    return undo_log_item;
 }
 
 void LogManager::flush_log_page_with_backup(){

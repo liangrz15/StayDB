@@ -38,11 +38,11 @@ int main(){
     LOG4CPLUS_INFO(logger, LOG4CPLUS_TEXT("create lock manager"));
     LockManager::create_instance(0, 0);
     LOG4CPLUS_INFO(logger, LOG4CPLUS_TEXT("get lock manager instance"));
-    LockManager* lock_manager = LockManager::get_instance();
+    LockManager::get_instance();
     LOG4CPLUS_INFO(logger, LOG4CPLUS_TEXT("get page manager"));
-    PageManager* page_manager = PageManager::get_instance();
+    PageManager::get_instance();
     LOG4CPLUS_INFO(logger, LOG4CPLUS_TEXT("get log manager"));
-    LogManager* log_manager = LogManager::get_instance();
+    LogManager::get_instance();
 
     pthread_t prepare_thread;
     LOG4CPLUS_INFO(logger, LOG4CPLUS_TEXT("create worker for prepare thread"));
@@ -56,20 +56,24 @@ int main(){
     WorkerTask task1 = WorkerTask(Worker(1), "inputs/thread_1.txt", "inputs/thread_1_out.txt");
     LOG4CPLUS_INFO(logger, LOG4CPLUS_TEXT("creating thread1"));
     pthread_create(&task1_thread, 0, worker_thread, &task1);
-    pthread_join(task1_thread, 0);
+    // pthread_join(task1_thread, 0);
 
     pthread_t task2_thread;
     LOG4CPLUS_INFO(logger, LOG4CPLUS_TEXT("create worker for thread2"));
     WorkerTask task2 = WorkerTask(Worker(2), "inputs/thread_2.txt", "inputs/thread_2_out.txt");
     LOG4CPLUS_INFO(logger, LOG4CPLUS_TEXT("creating thread2"));
     pthread_create(&task2_thread, 0, worker_thread, &task2);
-    pthread_join(task2_thread, 0);
+    // pthread_join(task2_thread, 0);
 
     pthread_t task3_thread;
     LOG4CPLUS_INFO(logger, LOG4CPLUS_TEXT("create worker for thread3"));
     WorkerTask task3 = WorkerTask(Worker(3), "inputs/thread_3.txt", "inputs/thread_3_out.txt");
     LOG4CPLUS_INFO(logger, LOG4CPLUS_TEXT("creating thread3"));
     pthread_create(&task3_thread, 0, worker_thread, &task3);
+    // pthread_join(task3_thread, 0);
+
+    pthread_join(task1_thread, 0);
+    pthread_join(task2_thread, 0);
     pthread_join(task3_thread, 0);
     return 0;
 }
