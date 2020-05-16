@@ -7,6 +7,8 @@
 #include <staydb/executor/executor.h>
 #include <staydb/lockmanager/lockmanager.h>
 #include <map>
+#include <log4cplus/loggingmacros.h>
+#include <log4cplus/logger.h>
 
 
 enum CommandType{
@@ -46,6 +48,7 @@ public:
     Worker(uint worker_ID);
 
 private:
+    log4cplus::Logger logger;
     void execute_commands(const std::vector<Command>& commands);
     uint worker_ID;
     uint transaction_ID;
@@ -62,5 +65,6 @@ private:
     void append_output_row(std::string type, int value);
     bool transaction_active;
     executor_error_t get_value_for_key(const std::string& key, int* value);
+    void append_output_row_with_time(std::string type, const std::string& time_nanosecond);
 
 };

@@ -4,6 +4,8 @@
 #include <staydb/pagemanager/pagemanager.h>
 #include <pthread.h>
 #include <staydb/lockmanager/lockmanager.h>
+#include <log4cplus/loggingmacros.h>
+#include <log4cplus/logger.h>
 
 class LogManager{
 public:
@@ -15,6 +17,7 @@ public:
     void flush_logs();
 
 private:
+    log4cplus::Logger logger;
     LogManager();
     PageManager* page_manager;
     LockManager* lock_manager;

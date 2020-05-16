@@ -5,6 +5,8 @@
 #include <map>
 #include <functional>
 #include <pthread.h>
+#include <log4cplus/loggingmacros.h>
+#include <log4cplus/logger.h>
 
 
 struct LRUNode{
@@ -23,6 +25,11 @@ struct PageMetadata{
         page_ID = _page_ID;
         dirty = false;
         n_readers = 0;
+    }
+    std::string to_str(){
+        std::string str = std::string("dirty: ") + std::to_string(dirty) + std::string(", n_readers: ") + std::to_string(n_readers)
+                            + std::string(", page_ID: ") + std::to_string(page_ID) + std::string(", file_name: ") + file_name;
+        return str;
     }
 };
 
@@ -58,6 +65,7 @@ public:
     void flush_all_pages();
 
 private:
+    log4cplus::Logger logger;
     pthread_mutex_t mutex;
     uint n_pages;
     uint page_size;

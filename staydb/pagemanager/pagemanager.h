@@ -1,6 +1,8 @@
 #pragma once
 #include <string>
 #include <staydb/pagemanager/poolmanager.h>
+#include <log4cplus/loggingmacros.h>
+#include <log4cplus/logger.h>
 
 class PageManager{
 public:
@@ -17,6 +19,7 @@ public:
     void flush_all_log_pages();
 
 private:
+    log4cplus::Logger logger;
     PageManager();
     ~PageManager();
     static PageManager* instance;

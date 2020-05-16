@@ -69,10 +69,11 @@ void LockManager::key_write_unlock(const std::string& key, uint static_transacti
     key_write_locktable.occupy_unlock(key, static_transaction_ID);
 }
 
-uint LockManager::get_read_timestamp(){
+uint LockManager::get_read_timestamp(std::string* begin_time_nanoseconds){
     uint read_timestamp = 0;
     pthread_rwlock_rdlock(&timestamp_rwlock);
     read_timestamp = max_allocated_timestamp;
+    *begin_time_nanoseconds = nanoseconds_since_start();
     pthread_rwlock_unlock(&timestamp_rwlock);
     return read_timestamp;
 }
@@ -86,9 +87,10 @@ uint LockManager::commit_lock_and_get_timestamp(){
     return write_timestamp;
 }
 
-void LockManager::commit_unlock(){
+void LockManager::commit_unlock(std::string* commit_time_nanoseconds){
     pthread_rwlock_wrlock(&timestamp_rwlock);
     max_allocated_timestamp += 1;
+    *commit_time_nanoseconds = nanoseconds_since_start();
     pthread_rwlock_unlock(&timestamp_rwlock);
     pthread_mutex_unlock(&commit_mutex);
 }

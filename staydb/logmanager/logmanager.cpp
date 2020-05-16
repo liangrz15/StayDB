@@ -7,33 +7,40 @@
 LogManager* LogManager::instance = nullptr;
 
 LogManager::LogManager(){
+    logger = log4cplus::Logger::getInstance(LOG4CPLUS_TEXT("logmanager"));
     pthread_mutex_init(&mutex, 0);
     page_manager = PageManager::get_instance();
     lock_manager = LockManager::get_instance();
-    header_page_pool_ID = page_manager->get_log_page(HEADER_TYPE, 0, (void**)header_page);
-    backup_page_pool_ID = page_manager->get_log_page(BACKUP_TYPE, 0, (void**)backup_page);
+    LOG4CPLUS_DEBUG(logger, LOG4CPLUS_TEXT("init lock manager"));
+    header_page_pool_ID = page_manager->get_log_page(HEADER_TYPE, 0, (void**)&header_page);
+    LOG4CPLUS_DEBUG(logger, LOG4CPLUS_TEXT("header_page_pool_ID: ") << header_page_pool_ID);
+    backup_page_pool_ID = page_manager->get_log_page(BACKUP_TYPE, 0, (void**)&backup_page);
+    LOG4CPLUS_DEBUG(logger, LOG4CPLUS_TEXT("backup_page_pool_ID: ") << backup_page_pool_ID);
     next_log_ID = 0;
     if(!check_header_valid(header_page)){
         if(check_header_valid(backup_page)){
+            LOG4CPLUS_DEBUG(logger, LOG4CPLUS_TEXT("backup page valie"));
             memcpy(header_page, backup_page, PAGE_SIZE);
             page_manager->flush_log_page(header_page_pool_ID);
         }
         else{
+            LOG4CPLUS_DEBUG(logger, LOG4CPLUS_TEXT("backup page invalid"));
             backup_page->n_log_pages = 0;
             fill_header_checksum(backup_page);
+            assert(check_header_valid(backup_page));
             page_manager->flush_log_page(backup_page_pool_ID);
             memcpy(header_page, backup_page, PAGE_SIZE);
             page_manager->flush_log_page(header_page_pool_ID);
         }
     }
-
+    LOG4CPLUS_INFO(logger, LOG4CPLUS_TEXT("header_page->n_log_pages: ") << header_page->n_log_pages);
     if(header_page->n_log_pages == 0){
-        log_page_pool_ID = page_manager->get_log_page(LOG_TYPE, 0, (void**)log_page);
+        log_page_pool_ID = page_manager->get_log_page(LOG_TYPE, 0, (void**)&log_page);
         memset(log_page, 0, PAGE_SIZE);
         current_log_page_ever_flushed = false;
     }
     else{
-        log_page_pool_ID = page_manager->get_log_page(LOG_TYPE, header_page->n_log_pages - 1, (void**)log_page);
+        log_page_pool_ID = page_manager->get_log_page(LOG_TYPE, header_page->n_log_pages - 1, (void**)&log_page);
         current_log_page_ever_flushed = true;
     }
 
@@ -61,7 +68,7 @@ void LogManager::undo_logs(std::vector<LogItem> log_items){
         if(log_item.log_type == DATA_SLOT_LOG){
             DataFilePage* data_page;
             lock_manager->data_slot_write_lock(log_item.hash);
-            int data_page_pool_ID = page_manager->get_page(log_item.hash, DATA_TYPE, log_item.page_ID, (void**)data_page);
+            int data_page_pool_ID = page_manager->get_page(log_item.hash, DATA_TYPE, log_item.page_ID, (void**)&data_page);
             char* byte_to_change = (char*)(data_page) + log_item.offset;
             unsigned mask = UINT8_MAX - (log_item.new_value[0] ^ log_item.old_value[0]);
             *byte_to_change = (*byte_to_change) & mask;
@@ -77,7 +84,7 @@ void LogManager::undo_logs(std::vector<LogItem> log_items){
         else if(log_item.log_type == INDEX_SLOT_LOG){
             IndexFilePage* index_page;
             lock_manager->index_slot_write_lock(log_item.hash);
-            int index_page_pool_ID = page_manager->get_page(log_item.hash, INDEX_TYPE, log_item.page_ID, (void**)index_page);
+            int index_page_pool_ID = page_manager->get_page(log_item.hash, INDEX_TYPE, log_item.page_ID, (void**)&index_page);
             char* byte_to_change = (char*)(index_page) + log_item.offset;
             unsigned mask = UINT8_MAX - (log_item.new_value[0] ^ log_item.old_value[0]);
             *byte_to_change = (*byte_to_change) & mask;
@@ -92,7 +99,7 @@ void LogManager::undo_logs(std::vector<LogItem> log_items){
         }
         else if(log_item.log_type == INDEX_ITEM_UPDATE_LOG){
             IndexFilePage* index_page;
-            int index_page_pool_ID = page_manager->get_page(log_item.hash, INDEX_TYPE, log_item.page_ID, (void**)index_page);
+            int index_page_pool_ID = page_manager->get_page(log_item.hash, INDEX_TYPE, log_item.page_ID, (void**)&index_page);
             char* byte_to_change = (char*)(index_page) + log_item.offset;
             memcpy(byte_to_change, log_item.old_value, log_item.length);
 
@@ -249,7 +256,7 @@ void LogManager::add_log_item_to_page(const LogItem& log_item){
     if(slot_ID == N_LOG_ITEMS_PER_PAGE){
         _flush_logs();
         page_manager->release_log_page(log_page_pool_ID);
-        log_page_pool_ID = page_manager->get_log_page(LOG_TYPE, header_page->n_log_pages, (void**)log_page);
+        log_page_pool_ID = page_manager->get_log_page(LOG_TYPE, header_page->n_log_pages, (void**)&log_page);
         memset(log_page, 0, PAGE_SIZE);
         current_log_page_ever_flushed = false;
         slot_ID = 0;

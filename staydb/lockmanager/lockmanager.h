@@ -6,6 +6,7 @@
 #include <pthread.h>
 #include <staydb/lockmanager/locktable.h>
 #include <staydb/lockmanager/waitqueue_table.h>
+#include <staydb/util/timer.h>
 
 /* manager of lock and global transaction information */
 class LockManager{
@@ -38,9 +39,9 @@ public:
     void ban_transactions();
     void allow_transactions();
 
-    uint get_read_timestamp();
+    uint get_read_timestamp(std::string* begin_time_nanoseconds);
     uint commit_lock_and_get_timestamp();
-    void commit_unlock();
+    void commit_unlock(std::string* commit_time_nanoseconds);
 
 private:
     static LockManager* instance;

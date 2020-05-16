@@ -1,12 +1,14 @@
 #include <staydb/executor/executor.h>
 #include <staydb/util/crc32.h>
 #include <staydb/util/md5.h>
+#include <staydb/util/timer.h>
 #include <cassert>
 #include <cstdlib>
 #include <cstring>
 #include <algorithm>
 
 Executor::Executor(){
+    logger = log4cplus::Logger::getInstance(LOG4CPLUS_TEXT("executor"));
     lock_manager = LockManager::get_instance();
     assert(lock_manager != nullptr);
     log_manager = LogManager::get_instance();
@@ -20,6 +22,8 @@ executor_error_t Executor::read_key(const std::string& key, int* value){
     uint n_data_pages;
     std::string hash = calc_hash(key);
     parse_header(hash, &n_index_pages, &n_data_pages);
+    LOG4CPLUS_DEBUG(logger, LOG4CPLUS_TEXT("n_index_pages: ") << n_index_pages);
+    LOG4CPLUS_DEBUG(logger, LOG4CPLUS_TEXT("n_data_pages: ") << n_data_pages);
     uint index_page_ID;
     uint index_slot_ID;
     uint prev_record_page_ID;
@@ -27,6 +31,7 @@ executor_error_t Executor::read_key(const std::string& key, int* value){
     bool index_found = find_index(hash, key, n_index_pages, &index_page_ID, &index_slot_ID, 
                         &prev_record_page_ID, &prev_record_slot_ID);
     if(!index_found){
+        LOG4CPLUS_WARN(logger, LOG4CPLUS_TEXT("index not found"));
         return ERROR_READ_NOT_EXIST;
     }
     while(true){
@@ -35,6 +40,7 @@ executor_error_t Executor::read_key(const std::string& key, int* value){
             if(prev_record.delete_flag){
                 return ERROR_READ_NOT_EXIST;
             }
+            LOG4CPLUS_WARN(logger, LOG4CPLUS_TEXT("prev_record") << prev_record.to_str());
             *value = prev_record.value;
             return ERROR_NONE;
         }
@@ -109,6 +115,7 @@ executor_error_t Executor::insert_key(const std::string& key, int value, uint* w
     bool index_found = find_index(hash, key, n_index_pages, &index_page_ID, &index_slot_ID, 
                         &prev_record_page_ID, &prev_record_slot_ID);
     if(index_found){
+        LOG4CPLUS_DEBUG(logger, LOG4CPLUS_TEXT("insert record found"));
         DataRecord prev_record = get_record(hash, prev_record_page_ID, prev_record_slot_ID);
         if(prev_record.timestamp > read_timestamp){
             return ERROR_RETRY_WRITE;
@@ -124,6 +131,7 @@ executor_error_t Executor::insert_key(const std::string& key, int value, uint* w
                             index_page_ID, index_slot_ID));
     }
     else{
+        LOG4CPLUS_DEBUG(logger, LOG4CPLUS_TEXT("insert record not found"));
         DataRecord new_record = DataRecord(true, false, value, 0, 0, UINT_MAX);
         uint inserted_page_ID;
         uint inserted_slot_ID;
@@ -147,9 +155,11 @@ executor_error_t Executor::abort(){
     return ERROR_NONE;
 }
 
-executor_error_t Executor::commit(){
+executor_error_t Executor::commit(std::string* commit_time_nanoseconds){
+    LOG4CPLUS_INFO(logger, LOG4CPLUS_TEXT("transaction ") << static_transaction_ID << " start to commit");
     write_timestamp = lock_manager->commit_lock_and_get_timestamp();
     for(WriteItem write_item: write_items){
+        LOG4CPLUS_INFO(logger, LOG4CPLUS_TEXT("write_item: ") << write_item.to_str());
         if(write_item.first_record){
             update_record(write_item.hash, write_item.inserted_page_ID, write_item.inserted_slot_ID, write_timestamp);
             insert_index(write_item.hash, write_item.key, write_item.n_index_pages, write_item.inserted_page_ID, write_item.inserted_slot_ID);
@@ -167,17 +177,17 @@ executor_error_t Executor::commit(){
     for(std::string key: locked_write_keys){
         lock_manager->key_write_unlock(key, static_transaction_ID);
     }
-    lock_manager->commit_unlock();
+    lock_manager->commit_unlock(commit_time_nanoseconds);
     return ERROR_NONE;
 }
 
-void Executor::reset(uint static_transaction_ID){
+void Executor::reset(uint static_transaction_ID, std::string* begin_time_nanoseconds){
     this->static_transaction_ID = static_transaction_ID;
     write_items.clear();
     log_items.clear();
     locked_write_keys.clear();
     dynamic_transaction_ID = lock_manager->get_dynamic_transaction_ID();
-    read_timestamp = lock_manager->get_read_timestamp();
+    read_timestamp = lock_manager->get_read_timestamp(begin_time_nanoseconds);
 }
 
 std::string Executor::calc_hash(const std::string& key){
@@ -199,7 +209,7 @@ void Executor::parse_header(const std::string& hash, uint* n_index_pages, uint* 
         header_valid = check_header_valid(header_page);
         if(!header_valid){
             HeaderFilePage* backup_page = nullptr;
-            int backup_pool_ID = page_manager->get_page(hash, BACKUP_TYPE, 0, (void**)backup_page);
+            int backup_pool_ID = page_manager->get_page(hash, BACKUP_TYPE, 0, (void**)&backup_page);
             bool backup_valid = check_header_valid(backup_page);
             if(backup_valid){
                 memcpy(header_page, backup_page, PAGE_SIZE);
@@ -234,7 +244,7 @@ bool Executor::find_index(const std::string& hash, const std::string& key, uint 
     lock_manager->index_slot_read_lock(hash);
     for(uint i = 0; i < n_index_pages; i++){
         IndexFilePage* index_page = nullptr;
-        int index_page_pool_ID = page_manager->get_page(hash, INDEX_TYPE, i, (void**)index_page);
+        int index_page_pool_ID = page_manager->get_page(hash, INDEX_TYPE, i, (void**)&index_page);
         for(uint slot_ID = 0; slot_ID < N_INDEX_ITEMS_PER_PAGE; slot_ID++){
             bool occupy = get_index_slot_bit(index_page, slot_ID);
             if(occupy){
@@ -259,7 +269,7 @@ bool Executor::find_index(const std::string& hash, const std::string& key, uint 
 
 DataRecord Executor::get_record(const std::string& hash, uint record_page_ID, uint record_slot_ID){
     DataFilePage* data_page = nullptr;
-    int data_page_pool_ID = page_manager->get_page(hash, DATA_TYPE, record_page_ID, (void**)data_page);
+    int data_page_pool_ID = page_manager->get_page(hash, DATA_TYPE, record_page_ID, (void**)&data_page);
     DataRecord record = data_page->data_records[record_slot_ID];
     page_manager->release_page(data_page_pool_ID);
     return record;
@@ -267,8 +277,10 @@ DataRecord Executor::get_record(const std::string& hash, uint record_page_ID, ui
 
 void Executor::insert_record(const std::string& hash, uint n_data_pages, const DataRecord& record, 
                     uint* inserted_page_ID, uint* inserted_slot_ID){
+    LOG4CPLUS_DEBUG(logger, LOG4CPLUS_TEXT("insert record: ") << record.to_str());
     lock_manager->data_slot_write_lock(hash);
     if(n_data_pages > 0){
+        LOG4CPLUS_DEBUG(logger, LOG4CPLUS_TEXT("n_data_pages > 0"));
         uint page_ID = n_data_pages - 1;
         if(try_insert_record_to_page(hash, page_ID, record, inserted_slot_ID)){
             *inserted_page_ID = page_ID;
@@ -276,10 +288,14 @@ void Executor::insert_record(const std::string& hash, uint n_data_pages, const D
             return;
         }
     }
+    else{
+        LOG4CPLUS_DEBUG(logger, LOG4CPLUS_TEXT("n_data_pages == 0"));
+    }
     lock_manager->header_write_lock(hash);
     HeaderFilePage* header_page = nullptr;
-    int header_page_pool_ID = page_manager->get_page(hash, HEADER_TYPE, 0, (void**)header_page);
+    int header_page_pool_ID = page_manager->get_page(hash, HEADER_TYPE, 0, (void**)&header_page);
     if(header_page->n_data_pages > n_data_pages){
+        LOG4CPLUS_DEBUG(logger, LOG4CPLUS_TEXT("header_page->n_data_pages > n_data_pages"));
         uint page_ID = header_page->n_data_pages;
         if(try_insert_record_to_page(hash, page_ID, record, inserted_slot_ID)){
             *inserted_page_ID = page_ID;
@@ -289,17 +305,21 @@ void Executor::insert_record(const std::string& hash, uint n_data_pages, const D
             return;
         }
     }
+    else{
+        LOG4CPLUS_DEBUG(logger, LOG4CPLUS_TEXT("header_page->n_data_pages <= n_data_pages"));
+    }
 
     DataFilePage* data_page = nullptr;
-    int data_page_pool_ID = page_manager->get_page(hash, DATA_TYPE, header_page->n_data_pages, (void**)data_page);
+    int data_page_pool_ID = page_manager->get_page(hash, DATA_TYPE, header_page->n_data_pages, (void**)&data_page);
     memset(data_page, 0, PAGE_SIZE);
     page_manager->flush_page(data_page_pool_ID);
     page_manager->release_page(data_page_pool_ID);
 
     assert(try_insert_record_to_page(hash, header_page->n_data_pages, record, inserted_slot_ID));
+    *inserted_page_ID = header_page->n_data_pages;
 
     HeaderFilePage* backup_page = nullptr;
-    int backup_page_pool_ID = page_manager->get_page(hash, BACKUP_TYPE, 0, (void**)backup_page);
+    int backup_page_pool_ID = page_manager->get_page(hash, BACKUP_TYPE, 0, (void**)&backup_page);
     backup_page->n_data_pages = header_page->n_data_pages + 1;
     backup_page->n_index_pages = header_page->n_index_pages;
     fill_header_checksum(backup_page);
@@ -317,9 +337,11 @@ void Executor::insert_record(const std::string& hash, uint n_data_pages, const D
 void Executor::update_record(const std::string& hash, uint record_page_ID, uint record_slot_ID, 
                     uint write_timestamp){
     DataFilePage* data_page;
-    int data_page_pool_ID = page_manager->get_page(hash, DATA_TYPE, record_page_ID, (void**)data_page);
+    int data_page_pool_ID = page_manager->get_page(hash, DATA_TYPE, record_page_ID, (void**)&data_page);
+    LOG4CPLUS_DEBUG(logger, LOG4CPLUS_TEXT("data_page before undate record: ") << data_page->to_str());
     DataRecord old_record = data_page->data_records[record_slot_ID];
     data_page->data_records[record_slot_ID].timestamp = write_timestamp;
+    LOG4CPLUS_DEBUG(logger, LOG4CPLUS_TEXT("data_page after undate record: ") << data_page->to_str());
     log_manager->add_log(DATA_RECORD_UPDATE_LOG, dynamic_transaction_ID, record_page_ID, record_slot_ID * sizeof(DataRecord),
                             sizeof(DataRecord), hash.c_str(), &old_record, &data_page->data_records[record_slot_ID]);
     page_manager->mark_page_dirty(data_page_pool_ID);
@@ -330,7 +352,7 @@ void Executor::update_record(const std::string& hash, uint record_page_ID, uint 
 void Executor::update_index(const std::string& hash, uint index_page_ID, uint index_slot_ID, 
                     uint record_page_ID, uint record_slot_ID){
     IndexFilePage* index_page = nullptr;
-    int index_page_pool_ID = page_manager->get_page(hash, INDEX_TYPE, index_page_ID, (void**)index_page);
+    int index_page_pool_ID = page_manager->get_page(hash, INDEX_TYPE, index_page_ID, (void**)&index_page);
     IndexItem old_item = index_page->index_items[index_slot_ID];
     
     index_page->index_items[index_slot_ID].last_slot_ID = record_slot_ID;
@@ -372,7 +394,7 @@ void Executor::insert_index(const std::string& hash, const std::string& key, uin
     page_manager->release_page(index_page_pool_ID);
 
     HeaderFilePage* backup_page = nullptr;
-    int backup_pool_ID = page_manager->get_page(hash, BACKUP_TYPE, 0, (void**)backup_page);
+    int backup_pool_ID = page_manager->get_page(hash, BACKUP_TYPE, 0, (void**)&backup_page);
 
     backup_page->n_data_pages = header_page->n_data_pages;
     backup_page->n_index_pages = header_page->n_index_pages + 1;
@@ -483,8 +505,10 @@ bool Executor::try_insert_index_to_page(const std::string& hash, const std::stri
 }
 
 bool Executor::try_insert_record_to_page(const std::string& hash, uint page_ID, const DataRecord& record, uint* inserted_slot_ID){
+    LOG4CPLUS_DEBUG(logger, LOG4CPLUS_TEXT("try_insert_record_to_page"));
     DataFilePage* data_page = nullptr;
-    int data_page_pool_ID = page_manager->get_page(hash, DATA_TYPE, page_ID, (void**)data_page);
+    int data_page_pool_ID = page_manager->get_page(hash, DATA_TYPE, page_ID, (void**)&data_page);
+    LOG4CPLUS_INFO(logger, LOG4CPLUS_TEXT("data_page before insert: ") << data_page->to_str());
     for(uint slot_ID = 0; slot_ID < N_DATA_RECORDS_PER_PAGE; slot_ID++){
         bool occupy = get_data_slot_bit(data_page, slot_ID);
         if(!occupy){
@@ -496,6 +520,7 @@ bool Executor::try_insert_record_to_page(const std::string& hash, uint page_ID, 
                                     hash.c_str(), &old_value, &new_value);
             DataRecord old_record = data_page->data_records[slot_ID];
             data_page->data_records[slot_ID] = record;
+            LOG4CPLUS_INFO(logger, LOG4CPLUS_TEXT("data_page after insert: ") << data_page->to_str());            
             log_manager->add_log(DATA_RECORD_INSERT_LOG, dynamic_transaction_ID, page_ID, slot_ID * sizeof(DataRecord),
                                     sizeof(DataRecord), hash.c_str(), &old_record, &record);
             page_manager->mark_page_dirty(data_page_pool_ID);

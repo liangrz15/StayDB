@@ -6,6 +6,7 @@ PageManager* PageManager::instance = nullptr;
 
 PageManager::PageManager(){
     data_pool_manager = new PoolManager(DATA_POOL_SIZE, PAGE_SIZE, DATA_POOL_MAX_FD);
+    log_pool_manager = new PoolManager(LOG_POOL_SIZE, PAGE_SIZE, LOG_POOL_MAX_FD);
 }
 PageManager::~PageManager(){
     delete data_pool_manager;
@@ -21,7 +22,7 @@ PageManager* PageManager::get_instance(){
 
 
 int PageManager::get_page(const std::string& hash, const std::string& type, uint page_ID, void** page){
-    const std::string& dir_name = hash_to_dir_path(hash);
+    const std::string& dir_name = std::string("db/") + hash_to_dir_path(hash);
     return data_pool_manager->get_page(dir_name, type, page_ID, page, flush_log_data_pool);
 }
 void PageManager::release_page(int pool_page_ID){
@@ -41,7 +42,7 @@ void PageManager::flush_all_pages(){
 }
 
 int PageManager::get_log_page(const std::string& type, uint page_ID, void** page){
-    const std::string dir_name = "log";
+    const std::string dir_name = "db/log";
     return log_pool_manager->get_page(dir_name, type, page_ID, page, flush_log_log_pool);
 }
 

@@ -6,6 +6,8 @@
 #include <staydb/logmanager/logmanager.h>
 #include <staydb/pagemanager/pagemanager.h>
 #include <vector>
+#include <log4cplus/loggingmacros.h>
+#include <log4cplus/logger.h>
 
 enum executor_error_t{
     ERROR_NONE,
@@ -30,6 +32,15 @@ struct WriteItem{
     bool first_record;
     uint index_page_ID;
     uint index_slot_ID;
+
+    std::string to_str() const {
+        std::string str = std::string("[hash: ") + hash + std::string(", key: ") + key
+                    + std::string(", inserted_page_ID: ") + std::to_string(inserted_page_ID) + std::string(", inserted_slot_ID: ") + std::to_string(inserted_slot_ID)
+                    + std::string(", n_index_pages: ") + std::to_string(n_index_pages) + std::string(", first_record: ") + std::to_string(first_record)
+                    + std::string(", index_page_ID: ") + std::to_string(index_page_ID) + std::string(", index_slot_ID: ") + std::to_string(index_slot_ID)
+                    + std::string("]");
+        return str;
+    }
 };
 
 
@@ -43,10 +54,11 @@ public:
     executor_error_t insert_key(const std::string& key, int value, uint* wait_transaction_ID);
     executor_error_t delete_key(const std::string& key, uint* wait_transaction_ID);
     executor_error_t abort();
-    executor_error_t commit();
-    void reset(uint static_transaction_ID);
+    executor_error_t commit(std::string* commit_time_nanoseconds);
+    void reset(uint static_transaction_ID, std::string* begin_time_nanoseconds);
 
 private:
+    log4cplus::Logger logger;
     LockManager* lock_manager;
     LogManager* log_manager;
     PageManager* page_manager;
