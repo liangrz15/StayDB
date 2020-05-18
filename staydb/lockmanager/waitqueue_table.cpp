@@ -28,6 +28,7 @@ void WaitQueueTable::wait(uint ID){
 void WaitQueueTable::release(uint ID){
     pthread_rwlock_wrlock(&rwlock);
     LOG4CPLUS_DEBUG(logger, LOG4CPLUS_TEXT("WaitQueueTable::release: ") << ID);
+    assert(queues.find(ID) != queues.end());
     WaitQueue* wait_queue = queues[ID];
     queues.erase(ID);
     pthread_rwlock_unlock(&rwlock);

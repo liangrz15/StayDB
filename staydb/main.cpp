@@ -8,6 +8,7 @@
 #include <log4cplus/logger.h>
 #include <log4cplus/configurator.h>
 #include <log4cplus/loggingmacros.h>
+#include <staydb/util/prepare.h>
 
 pthread_mutex_t cout_mutex;
 
@@ -44,36 +45,44 @@ int main(){
     LOG4CPLUS_INFO(logger, LOG4CPLUS_TEXT("get log manager"));
     LogManager::get_instance();
 
+    wrap_transaction("inputs/data_prepare.txt", "inputs/data_prepare_wrap.txt");
+
     pthread_t prepare_thread;
     LOG4CPLUS_INFO(logger, LOG4CPLUS_TEXT("create worker for prepare thread"));
-    WorkerTask prepare_task = WorkerTask(Worker(0), "inputs/data_prepare.txt", "inputs/data_prepare_out.txt");
+    WorkerTask prepare_task = WorkerTask(Worker(0), "inputs/data_prepare_wrap.txt", "inputs/data_prepare_out.txt");
     LOG4CPLUS_INFO(logger, LOG4CPLUS_TEXT("creating prepare thread"));
     pthread_create(&prepare_thread, 0, worker_thread, &prepare_task);
     pthread_join(prepare_thread, 0);
 
     pthread_t task1_thread;
     LOG4CPLUS_INFO(logger, LOG4CPLUS_TEXT("create worker for thread1"));
-    WorkerTask task1 = WorkerTask(Worker(1), "inputs/thread_1.txt", "inputs/thread_1_out.txt");
+    WorkerTask task1 = WorkerTask(Worker(1), "inputs/thread_1.txt", "inputs/output_thread_1.csv");
     LOG4CPLUS_INFO(logger, LOG4CPLUS_TEXT("creating thread1"));
     pthread_create(&task1_thread, 0, worker_thread, &task1);
-    // pthread_join(task1_thread, 0);
 
     pthread_t task2_thread;
     LOG4CPLUS_INFO(logger, LOG4CPLUS_TEXT("create worker for thread2"));
-    WorkerTask task2 = WorkerTask(Worker(2), "inputs/thread_2.txt", "inputs/thread_2_out.txt");
+    WorkerTask task2 = WorkerTask(Worker(2), "inputs/thread_2.txt", "inputs/output_thread_2.csv");
     LOG4CPLUS_INFO(logger, LOG4CPLUS_TEXT("creating thread2"));
     pthread_create(&task2_thread, 0, worker_thread, &task2);
-    // pthread_join(task2_thread, 0);
+
 
     pthread_t task3_thread;
     LOG4CPLUS_INFO(logger, LOG4CPLUS_TEXT("create worker for thread3"));
-    WorkerTask task3 = WorkerTask(Worker(3), "inputs/thread_3.txt", "inputs/thread_3_out.txt");
+    WorkerTask task3 = WorkerTask(Worker(3), "inputs/thread_3.txt", "inputs/output_thread_3.csv");
     LOG4CPLUS_INFO(logger, LOG4CPLUS_TEXT("creating thread3"));
     pthread_create(&task3_thread, 0, worker_thread, &task3);
-    // pthread_join(task3_thread, 0);
+
+    pthread_t task4_thread;
+    LOG4CPLUS_INFO(logger, LOG4CPLUS_TEXT("create worker for thread4"));
+    WorkerTask task4 = WorkerTask(Worker(4), "inputs/thread_4.txt", "inputs/output_thread_4.csv");
+    LOG4CPLUS_INFO(logger, LOG4CPLUS_TEXT("creating thread4"));
+    pthread_create(&task4_thread, 0, worker_thread, &task4);
+
 
     pthread_join(task1_thread, 0);
     pthread_join(task2_thread, 0);
     pthread_join(task3_thread, 0);
+    pthread_join(task4_thread, 0);
     return 0;
 }

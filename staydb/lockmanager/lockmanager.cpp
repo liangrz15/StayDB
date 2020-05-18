@@ -5,6 +5,7 @@
 LockManager* LockManager::instance = nullptr;
 
 LockManager::LockManager(uint max_transaction_ID, uint max_timestamp){
+    logger = log4cplus::Logger::getInstance(LOG4CPLUS_TEXT("LockManager"));
     max_allocated_transaction_ID = max_transaction_ID;
     max_allocated_timestamp = max_timestamp;
     pthread_rwlock_init(&timestamp_rwlock, 0);
@@ -61,12 +62,20 @@ void LockManager::header_unlock(const std::string& hash){
 }
 
 
-bool LockManager::key_write_lock(const std::string& key, uint static_transaction_ID, uint* occupier_transaction_ID){
-    return key_write_locktable.occupy_lock(key, static_transaction_ID, occupier_transaction_ID);
+bool LockManager::key_write_lock(const std::string& key, uint static_transaction_ID, uint dynamic_transaction_ID, uint* occupier_transaction_ID){
+    LOG4CPLUS_DEBUG(logger, LOG4CPLUS_TEXT("key_write_lock, static_transaction_ID: ") << static_transaction_ID 
+                        << ", dynamic_transaction_ID: " << dynamic_transaction_ID);
+    return key_write_locktable.occupy_lock(key, static_transaction_ID, dynamic_transaction_ID, occupier_transaction_ID);
 }
 
 void LockManager::key_write_unlock(const std::string& key, uint static_transaction_ID){
+    LOG4CPLUS_DEBUG(logger, LOG4CPLUS_TEXT("key_write_unlock, static_transaction_ID: ") << static_transaction_ID);
     key_write_locktable.occupy_unlock(key, static_transaction_ID);
+}
+
+void LockManager::dynamic_transaction_abort_finish(uint dynamic_transaction_ID){
+    LOG4CPLUS_DEBUG(logger, LOG4CPLUS_TEXT("dynamic_transaction_abort_finish, dynamic_transaction_ID: ") << dynamic_transaction_ID);
+    key_write_locktable.occupy_abort_finish(dynamic_transaction_ID);
 }
 
 uint LockManager::get_read_timestamp(std::string* begin_time_nanoseconds){
@@ -101,18 +110,22 @@ uint LockManager::get_dynamic_transaction_ID(){
     max_allocated_transaction_ID += 1;
     dynamic_transaction_ID = max_allocated_transaction_ID;
     pthread_mutex_unlock(&transaction_ID_mutex);
+    LOG4CPLUS_DEBUG(logger, LOG4CPLUS_TEXT("get_dynamic_transaction_ID: ") << dynamic_transaction_ID);
     return dynamic_transaction_ID;
 }
 
 void LockManager::begin_transaction(uint static_transaction_ID){
+    LOG4CPLUS_DEBUG(logger, LOG4CPLUS_TEXT("begin_transaction, static_transaction_ID: ") << static_transaction_ID);
     wait_queue_table.insert(static_transaction_ID);
 }
 
 void LockManager::end_transaction(uint static_transaction_ID){
+    LOG4CPLUS_DEBUG(logger, LOG4CPLUS_TEXT("end_transaction, static_transaction_ID: ") << static_transaction_ID);
     wait_queue_table.release(static_transaction_ID);
 }
 
 void LockManager::wait_for_transaction(uint static_transaction_ID){
+    LOG4CPLUS_DEBUG(logger, LOG4CPLUS_TEXT("end_transaction, static_transaction_ID: ") << static_transaction_ID);
     wait_queue_table.wait(static_transaction_ID);
 }
 

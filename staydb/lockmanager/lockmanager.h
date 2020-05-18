@@ -7,6 +7,9 @@
 #include <staydb/lockmanager/locktable.h>
 #include <staydb/lockmanager/waitqueue_table.h>
 #include <staydb/util/timer.h>
+#include <staydb/lockmanager/occupy_locktable.h>
+#include <log4cplus/loggingmacros.h>
+#include <log4cplus/logger.h>
 
 /* manager of lock and global transaction information */
 class LockManager{
@@ -22,9 +25,10 @@ public:
     uint get_dynamic_transaction_ID();
     void begin_transaction(uint static_transaction_ID);
     void end_transaction(uint static_transaction_ID);
+    void dynamic_transaction_abort_finish(uint dynamic_transaction_ID);
     void wait_for_transaction(uint static_transaction_ID);
 
-    bool key_write_lock(const std::string& key, uint transaction_ID, uint* occupier_transaction_ID);
+    bool key_write_lock(const std::string& key, uint static_transaction_ID, uint dynamic_transaction_ID, uint* occupier_transaction_ID);
     void key_write_unlock(const std::string& key, uint static_transaction_ID);
     void index_slot_read_lock(const std::string& hash);
     void index_slot_write_lock(const std::string& hash);
@@ -44,12 +48,13 @@ public:
     void commit_unlock(std::string* commit_time_nanoseconds);
 
 private:
+    log4cplus::Logger logger;
     static LockManager* instance;
     LockManager(uint max_transaction_ID, uint max_timestamp);
     LockTable index_slot_locktable;
     LockTable data_slot_locktable;
     LockTable header_locktable;
-    LockTable key_write_locktable;
+    OccupyLockTable key_write_locktable;
     WaitQueueTable wait_queue_table;
     uint max_allocated_timestamp;
     uint max_allocated_transaction_ID;

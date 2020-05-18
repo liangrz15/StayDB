@@ -68,7 +68,7 @@ bool PageManager::flush_log_data_pool(){
 }
 
 bool PageManager::flush_log_log_pool(){
-    return false;
+    return true;
 }
 
 std::string PageManager::hash_to_dir_path(const std::string& hash){

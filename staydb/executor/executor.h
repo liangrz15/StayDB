@@ -18,6 +18,11 @@ enum executor_error_t{
     ERROR_WRITE_NOT_EXIST
 };
 
+enum RecordField{
+    RECORD_TIMESTAMP,
+    RECORD_VALUE
+};
+
 struct WriteItem{
     WriteItem(const std::string& _hash, const std::string& _key, uint _inserted_page_ID, 
                 uint _inserted_slot_ID, uint _n_index_pages, bool _first_record = true, uint _index_page_ID = 0,
@@ -66,6 +71,7 @@ private:
     uint dynamic_transaction_ID;
     uint read_timestamp;
     uint write_timestamp;
+    bool abort_due_to_fail_write_lock;
     std::vector<LogItem> log_items;
     std::vector<WriteItem> write_items;
     std::vector<std::string> locked_write_keys;
@@ -81,7 +87,7 @@ private:
 
     /* update_record happen during commit*/
     void update_record(const std::string& hash, uint record_page_ID, uint record_slot_ID, 
-                        uint write_timestamp);
+                        RecordField field, uint new_value);
     /* update_index happen during commit*/
     void update_index(const std::string& hash, uint index_page_ID, uint index_slot_ID, 
                         uint record_page_ID, uint record_slot_ID);

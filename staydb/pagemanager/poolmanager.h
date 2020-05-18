@@ -26,7 +26,7 @@ struct PageMetadata{
         dirty = false;
         n_readers = 0;
     }
-    std::string to_str(){
+    std::string to_str() const{
         std::string str = std::string("dirty: ") + std::to_string(dirty) + std::string(", n_readers: ") + std::to_string(n_readers)
                             + std::string(", page_ID: ") + std::to_string(page_ID) + std::string(", file_name: ") + file_name;
         return str;

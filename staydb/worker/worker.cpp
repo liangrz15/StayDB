@@ -20,6 +20,7 @@ void Worker::execute_file(std::string input_file_name, std::string output_file_n
     }
     LOG4CPLUS_DEBUG(logger, LOG4CPLUS_TEXT("input_file_name: ") << input_file_name);
     LOG4CPLUS_DEBUG(logger, LOG4CPLUS_TEXT("output_file_name: ") << output_file_name);
+    out_stream << "transaction_id,type,time,value\n";
 
     std::string command_type;
     std::string key;
@@ -124,6 +125,7 @@ void Worker::execute_commands(const std::vector<Command>& commands){
 }
 
 ExecuteStatus Worker::execute_begin(uint transaction_ID){
+    std::cout << "execute_begin " << transaction_ID << std::endl;
     assert(transaction_output == "");
     if(transaction_active == false){
         transaction_active = true;
@@ -145,11 +147,13 @@ ExecuteStatus Worker::execute_insert(const std::string& key, int value){
     uint wait_transaction_ID;
     executor_error_t err = executor.insert_key(key, value, &wait_transaction_ID);
     if(err == ERROR_WAIT_WRITE){
+        LOG4CPLUS_DEBUG(logger, LOG4CPLUS_TEXT("abort due to ERROR_WAIT_WRITE"));
         executor.abort();
         lock_manager->wait_for_transaction(wait_transaction_ID);
         return EXECUTE_ABORT_REDO;
     }
     else if(err == ERROR_INSERT_EXIST){
+        LOG4CPLUS_DEBUG(logger, LOG4CPLUS_TEXT("abort due to ERROR_INSERT_EXIST"));
         executor.abort();
         pthread_mutex_lock(&cout_mutex);
         std::cout << "thread " << worker_ID << ": " << std::endl;
@@ -190,6 +194,7 @@ ExecuteStatus Worker::execute_read(const std::string& key){
         std::cout << "read a key that does not exist: " << key << std::endl;
         std::cout << "aborted" << std::endl;
         pthread_mutex_unlock(&cout_mutex);
+        LOG4CPLUS_DEBUG(logger, LOG4CPLUS_TEXT("abort due to ERROR_READ_NOT_EXIST"));
         executor.abort();
         return EXECUTE_ABORT_FINISH;
     }
@@ -204,6 +209,7 @@ ExecuteStatus Worker::execute_set(const std::string& key, const std::string& fir
     int value;
     executor_error_t err = get_value_for_key(first_operand, &value);
     if(err == ERROR_READ_NOT_EXIST){
+        LOG4CPLUS_DEBUG(logger, LOG4CPLUS_TEXT("abort due to ERROR_READ_NOT_EXIST"));
         executor.abort();
         pthread_mutex_lock(&cout_mutex);
         std::cout << "thread " << worker_ID << ": " << std::endl;
@@ -213,7 +219,7 @@ ExecuteStatus Worker::execute_set(const std::string& key, const std::string& fir
         return EXECUTE_ABORT_FINISH;
     }
     assert(err == ERROR_NONE);
-    append_output_row(first_operand, value);
+    //append_output_row(first_operand, value);
 
     if(op == "+"){
         value += second_operand;
@@ -228,15 +234,18 @@ ExecuteStatus Worker::execute_set(const std::string& key, const std::string& fir
     uint wait_transaction_ID;
     err = executor.write_key(key, value, &wait_transaction_ID);
     if(err == ERROR_WAIT_WRITE){
+        LOG4CPLUS_DEBUG(logger, LOG4CPLUS_TEXT("abort due to ERROR_WAIT_WRITE"));
         executor.abort();
         lock_manager->wait_for_transaction(wait_transaction_ID);
         return EXECUTE_ABORT_REDO;
     }
     else if(err == ERROR_RETRY_WRITE){
+        LOG4CPLUS_DEBUG(logger, LOG4CPLUS_TEXT("abort due to ERROR_RETRY_WRITE"));
         executor.abort();
         return EXECUTE_ABORT_REDO;
     }
     else if(err == ERROR_WRITE_NOT_EXIST){
+        LOG4CPLUS_DEBUG(logger, LOG4CPLUS_TEXT("abort due to ERROR_WRITE_NOT_EXIST"));
         executor.abort();
         pthread_mutex_lock(&cout_mutex);
         std::cout << "thread " << worker_ID << ": " << std::endl;
@@ -246,6 +255,7 @@ ExecuteStatus Worker::execute_set(const std::string& key, const std::string& fir
         return EXECUTE_ABORT_FINISH;
     }
     assert(err == ERROR_NONE);
+    local_map[key] = value;
     return EXECUTE_NORMAL;
 }
 

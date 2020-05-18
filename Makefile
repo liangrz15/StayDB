@@ -1,7 +1,7 @@
 TARGET_EXEC ?= a.out
 
 BUILD_DIR ?= ./build
-SRC_DIRS ?= .
+SRC_DIRS ?= ./staydb
 
 SRCS := $(shell find $(SRC_DIRS) -name *.cpp -or -name *.c -or -name *.s)
 OBJS := $(SRCS:%=$(BUILD_DIR)/%.o)
@@ -41,6 +41,10 @@ run:
 	-rm -r db
 	-rm logging.txt
 	./build/a.out
+
+copy:
+	cp inputs/*thread* judge
+	cp inputs/data_prepare.txt judge
 
 -include $(DEPS)
 

@@ -129,12 +129,14 @@ bool PoolManager::clean_pool(std::function<bool()> flush_log){
         uint page_pool_ID = it->page_pool_ID;
         const PageMetadata& page_metadata = page_metadata_array[page_pool_ID];
         if(page_metadata.n_readers == 0 && !page_metadata.dirty){
+            LOG4CPLUS_DEBUG(logger, LOG4CPLUS_TEXT("page_metadata to clean: ") << page_metadata.to_str());
             clean_pool_pos(page_pool_ID);
             if(file_metadata.size() < max_n_fds){
                 return true;
             }
         }
         else{
+            LOG4CPLUS_DEBUG(logger, LOG4CPLUS_TEXT("page_metadata cannot clean: ") << page_metadata.to_str());
             break;
         }
     }

@@ -56,19 +56,32 @@ executor_error_t Executor::read_key(const std::string& key, int* value){
 }
 
 executor_error_t Executor::write_key(const std::string& key, int value, uint* wait_transaction_ID){
+    std::string hash = calc_hash(key);
     uint occupier_transaction_ID;
     if(std::find(locked_write_keys.begin(), locked_write_keys.end(), key) == locked_write_keys.end()){
-        bool success = lock_manager->key_write_lock(key, static_transaction_ID, &occupier_transaction_ID);
+        bool success = lock_manager->key_write_lock(key, static_transaction_ID, dynamic_transaction_ID, &occupier_transaction_ID);
         if(!success){
             *wait_transaction_ID = occupier_transaction_ID;
+            abort_due_to_fail_write_lock = true;
             return ERROR_WAIT_WRITE;
         }
         locked_write_keys.push_back(key);
     }
+    else{
+        for(WriteItem write_item: write_items){
+            if(write_item.key == key){
+                uint inserted_page_ID = write_item.inserted_page_ID;
+                uint inserted_slot_ID = write_item.inserted_slot_ID;
+                update_record(hash, inserted_page_ID, inserted_slot_ID, RECORD_VALUE, value);
+                return ERROR_NONE;
+            }
+        }
+        assert(0);
+    }
     
     uint n_index_pages;
     uint n_data_pages;
-    std::string hash = calc_hash(key);
+    
     parse_header(hash, &n_index_pages, &n_data_pages);
     uint index_page_ID;
     uint index_slot_ID;
@@ -97,9 +110,10 @@ executor_error_t Executor::write_key(const std::string& key, int value, uint* wa
 executor_error_t Executor::insert_key(const std::string& key, int value, uint* wait_transaction_ID){
     uint occupier_transaction_ID;
     if(std::find(locked_write_keys.begin(), locked_write_keys.end(), key) == locked_write_keys.end()){
-        bool success = lock_manager->key_write_lock(key, static_transaction_ID, &occupier_transaction_ID);
+        bool success = lock_manager->key_write_lock(key, static_transaction_ID, dynamic_transaction_ID, &occupier_transaction_ID);
         if(!success){
             *wait_transaction_ID = occupier_transaction_ID;
+            abort_due_to_fail_write_lock = true;
             return ERROR_WAIT_WRITE;
         }
         locked_write_keys.push_back(key);
@@ -152,6 +166,10 @@ executor_error_t Executor::abort(){
     for(std::string key: locked_write_keys){
         lock_manager->key_write_unlock(key, static_transaction_ID);
     }
+    if(abort_due_to_fail_write_lock){
+        lock_manager->dynamic_transaction_abort_finish(dynamic_transaction_ID);
+    }
+    
     return ERROR_NONE;
 }
 
@@ -161,11 +179,11 @@ executor_error_t Executor::commit(std::string* commit_time_nanoseconds){
     for(WriteItem write_item: write_items){
         LOG4CPLUS_INFO(logger, LOG4CPLUS_TEXT("write_item: ") << write_item.to_str());
         if(write_item.first_record){
-            update_record(write_item.hash, write_item.inserted_page_ID, write_item.inserted_slot_ID, write_timestamp);
+            update_record(write_item.hash, write_item.inserted_page_ID, write_item.inserted_slot_ID, RECORD_TIMESTAMP, write_timestamp);
             insert_index(write_item.hash, write_item.key, write_item.n_index_pages, write_item.inserted_page_ID, write_item.inserted_slot_ID);
         }
         else{
-            update_record(write_item.hash, write_item.inserted_page_ID, write_item.inserted_slot_ID, write_timestamp);
+            update_record(write_item.hash, write_item.inserted_page_ID, write_item.inserted_slot_ID, RECORD_TIMESTAMP, write_timestamp);
             update_index(write_item.hash, write_item.index_page_ID, write_item.index_slot_ID, write_item.inserted_page_ID,
                             write_item.inserted_slot_ID);
         }
@@ -188,6 +206,7 @@ void Executor::reset(uint static_transaction_ID, std::string* begin_time_nanosec
     locked_write_keys.clear();
     dynamic_transaction_ID = lock_manager->get_dynamic_transaction_ID();
     read_timestamp = lock_manager->get_read_timestamp(begin_time_nanoseconds);
+    abort_due_to_fail_write_lock = false;
 }
 
 std::string Executor::calc_hash(const std::string& key){
@@ -336,13 +355,22 @@ void Executor::insert_record(const std::string& hash, uint n_data_pages, const D
 
 /* update_record happen during commit*/
 void Executor::update_record(const std::string& hash, uint record_page_ID, uint record_slot_ID, 
-                    uint write_timestamp){
+                    RecordField field, uint new_value){
     DataFilePage* data_page;
     int data_page_pool_ID = page_manager->get_page(hash, DATA_TYPE, record_page_ID, (void**)&data_page);
-    LOG4CPLUS_DEBUG(logger, LOG4CPLUS_TEXT("data_page before undate record: ") << data_page->to_str());
+    LOG4CPLUS_DEBUG(logger, LOG4CPLUS_TEXT("data_page before update record: ") << data_page->to_str());
     DataRecord old_record = data_page->data_records[record_slot_ID];
-    data_page->data_records[record_slot_ID].timestamp = write_timestamp;
-    LOG4CPLUS_DEBUG(logger, LOG4CPLUS_TEXT("data_page after undate record: ") << data_page->to_str());
+    if(field == RECORD_TIMESTAMP){
+        data_page->data_records[record_slot_ID].timestamp = new_value;
+    }
+    else if(field == RECORD_VALUE){
+        data_page->data_records[record_slot_ID].value = new_value;
+    }
+    else{
+        assert(0);
+    }
+    
+    LOG4CPLUS_DEBUG(logger, LOG4CPLUS_TEXT("data_page after update record: ") << data_page->to_str());
     log_manager->add_log(DATA_RECORD_UPDATE_LOG, dynamic_transaction_ID, record_page_ID, record_slot_ID * sizeof(DataRecord),
                             sizeof(DataRecord), hash.c_str(), &old_record, &data_page->data_records[record_slot_ID]);
     page_manager->mark_page_dirty(data_page_pool_ID);
