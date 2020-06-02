@@ -1,8 +1,1624 @@
-BEGIN 4
-READ A
-READ B
-COMMIT 4
-BEGIN 5
-SET B, B - 3
-SET A, A + 3
-COMMIT 5
+BEGIN 200
+READ attr_A
+READ attr_B
+SET attr_A, attr_A + 8
+READ attr_A
+SET attr_B, attr_B - 8
+READ attr_B
+READ attr_A
+READ attr_B
+READ attr_A
+READ attr_B
+SET attr_A, attr_A + 6
+READ attr_A
+SET attr_B, attr_B - 6
+READ attr_B
+READ attr_A
+READ attr_B
+READ attr_C
+READ attr_D
+SET attr_C, attr_C + 10
+READ attr_C
+SET attr_D, attr_D - 10
+READ attr_D
+READ attr_C
+READ attr_D
+COMMIT 200
+BEGIN 201
+READ attr_A
+READ attr_B
+READ attr_C
+READ attr_D
+READ attr_D
+READ attr_C
+READ attr_B
+READ attr_A
+COMMIT 201
+BEGIN 202
+READ attr_A
+READ attr_B
+READ attr_C
+READ attr_D
+READ attr_D
+READ attr_C
+READ attr_B
+READ attr_A
+COMMIT 202
+BEGIN 203
+READ attr_A
+READ attr_B
+READ attr_C
+READ attr_D
+READ attr_D
+READ attr_C
+READ attr_B
+READ attr_A
+COMMIT 203
+BEGIN 204
+READ attr_A
+READ attr_B
+READ attr_C
+READ attr_D
+READ attr_D
+READ attr_C
+READ attr_B
+READ attr_A
+COMMIT 204
+BEGIN 205
+READ attr_B
+READ attr_A
+SET attr_B, attr_B + 7
+READ attr_B
+SET attr_A, attr_A - 7
+READ attr_A
+READ attr_B
+READ attr_A
+READ attr_C
+READ attr_D
+SET attr_C, attr_C + 3
+READ attr_C
+SET attr_D, attr_D - 3
+READ attr_D
+READ attr_C
+READ attr_D
+READ attr_D
+READ attr_C
+SET attr_D, attr_D + 1
+READ attr_D
+SET attr_C, attr_C - 1
+READ attr_C
+READ attr_D
+READ attr_C
+COMMIT 205
+BEGIN 206
+READ attr_A
+READ attr_B
+READ attr_C
+READ attr_D
+READ attr_D
+READ attr_C
+READ attr_B
+READ attr_A
+COMMIT 206
+BEGIN 207
+READ attr_A
+READ attr_B
+SET attr_A, attr_A + 1
+READ attr_A
+SET attr_B, attr_B - 1
+READ attr_B
+READ attr_A
+READ attr_B
+READ attr_C
+READ attr_D
+SET attr_C, attr_C + 4
+READ attr_C
+SET attr_D, attr_D - 4
+READ attr_D
+READ attr_C
+READ attr_D
+COMMIT 207
+BEGIN 208
+READ attr_C
+READ attr_D
+SET attr_C, attr_C + 10
+READ attr_C
+SET attr_D, attr_D - 10
+READ attr_D
+READ attr_C
+READ attr_D
+READ attr_A
+READ attr_B
+SET attr_A, attr_A + 4
+READ attr_A
+SET attr_B, attr_B - 4
+READ attr_B
+READ attr_A
+READ attr_B
+READ attr_B
+READ attr_A
+SET attr_B, attr_B + 1
+READ attr_B
+SET attr_A, attr_A - 1
+READ attr_A
+READ attr_B
+READ attr_A
+COMMIT 208
+BEGIN 209
+READ attr_A
+READ attr_B
+READ attr_C
+READ attr_D
+READ attr_D
+READ attr_C
+READ attr_B
+READ attr_A
+COMMIT 209
+BEGIN 210
+READ attr_C
+READ attr_D
+SET attr_C, attr_C + 3
+READ attr_C
+SET attr_D, attr_D - 3
+READ attr_D
+READ attr_C
+READ attr_D
+READ attr_D
+READ attr_C
+SET attr_D, attr_D + 2
+READ attr_D
+SET attr_C, attr_C - 2
+READ attr_C
+READ attr_D
+READ attr_C
+READ attr_A
+READ attr_B
+SET attr_A, attr_A + 3
+READ attr_A
+SET attr_B, attr_B - 3
+READ attr_B
+READ attr_A
+READ attr_B
+READ attr_A
+READ attr_B
+SET attr_A, attr_A + 8
+READ attr_A
+SET attr_B, attr_B - 8
+READ attr_B
+READ attr_A
+READ attr_B
+COMMIT 210
+BEGIN 211
+READ attr_B
+READ attr_A
+SET attr_B, attr_B + 10
+READ attr_B
+SET attr_A, attr_A - 10
+READ attr_A
+READ attr_B
+READ attr_A
+READ attr_A
+READ attr_B
+SET attr_A, attr_A + 9
+READ attr_A
+SET attr_B, attr_B - 9
+READ attr_B
+READ attr_A
+READ attr_B
+READ attr_A
+READ attr_B
+SET attr_A, attr_A + 5
+READ attr_A
+SET attr_B, attr_B - 5
+READ attr_B
+READ attr_A
+READ attr_B
+READ attr_B
+READ attr_A
+SET attr_B, attr_B + 8
+READ attr_B
+SET attr_A, attr_A - 8
+READ attr_A
+READ attr_B
+READ attr_A
+READ attr_A
+READ attr_B
+SET attr_A, attr_A + 10
+READ attr_A
+SET attr_B, attr_B - 10
+READ attr_B
+READ attr_A
+READ attr_B
+COMMIT 211
+BEGIN 212
+READ attr_D
+READ attr_C
+SET attr_D, attr_D + 6
+READ attr_D
+SET attr_C, attr_C - 6
+READ attr_C
+READ attr_D
+READ attr_C
+COMMIT 212
+BEGIN 213
+READ attr_C
+READ attr_D
+SET attr_C, attr_C + 7
+READ attr_C
+SET attr_D, attr_D - 7
+READ attr_D
+READ attr_C
+READ attr_D
+READ attr_C
+READ attr_D
+SET attr_C, attr_C + 5
+READ attr_C
+SET attr_D, attr_D - 5
+READ attr_D
+READ attr_C
+READ attr_D
+COMMIT 213
+BEGIN 214
+READ attr_B
+READ attr_A
+SET attr_B, attr_B + 1
+READ attr_B
+SET attr_A, attr_A - 1
+READ attr_A
+READ attr_B
+READ attr_A
+READ attr_B
+READ attr_A
+SET attr_B, attr_B + 2
+READ attr_B
+SET attr_A, attr_A - 2
+READ attr_A
+READ attr_B
+READ attr_A
+READ attr_C
+READ attr_D
+SET attr_C, attr_C + 4
+READ attr_C
+SET attr_D, attr_D - 4
+READ attr_D
+READ attr_C
+READ attr_D
+READ attr_C
+READ attr_D
+SET attr_C, attr_C + 4
+READ attr_C
+SET attr_D, attr_D - 4
+READ attr_D
+READ attr_C
+READ attr_D
+READ attr_A
+READ attr_B
+SET attr_A, attr_A + 1
+READ attr_A
+SET attr_B, attr_B - 1
+READ attr_B
+READ attr_A
+READ attr_B
+COMMIT 214
+BEGIN 215
+READ attr_A
+READ attr_B
+READ attr_C
+READ attr_D
+READ attr_D
+READ attr_C
+READ attr_B
+READ attr_A
+COMMIT 215
+BEGIN 216
+READ attr_A
+READ attr_B
+READ attr_C
+READ attr_D
+READ attr_D
+READ attr_C
+READ attr_B
+READ attr_A
+COMMIT 216
+BEGIN 217
+READ attr_A
+READ attr_B
+READ attr_C
+READ attr_D
+READ attr_D
+READ attr_C
+READ attr_B
+READ attr_A
+COMMIT 217
+BEGIN 218
+READ attr_B
+READ attr_A
+SET attr_B, attr_B + 4
+READ attr_B
+SET attr_A, attr_A - 4
+READ attr_A
+READ attr_B
+READ attr_A
+READ attr_D
+READ attr_C
+SET attr_D, attr_D + 8
+READ attr_D
+SET attr_C, attr_C - 8
+READ attr_C
+READ attr_D
+READ attr_C
+COMMIT 218
+BEGIN 219
+READ attr_A
+READ attr_B
+READ attr_C
+READ attr_D
+READ attr_D
+READ attr_C
+READ attr_B
+READ attr_A
+COMMIT 219
+BEGIN 220
+READ attr_A
+READ attr_B
+READ attr_C
+READ attr_D
+READ attr_D
+READ attr_C
+READ attr_B
+READ attr_A
+COMMIT 220
+BEGIN 221
+READ attr_A
+READ attr_B
+READ attr_C
+READ attr_D
+READ attr_D
+READ attr_C
+READ attr_B
+READ attr_A
+COMMIT 221
+BEGIN 222
+READ attr_A
+READ attr_B
+READ attr_C
+READ attr_D
+READ attr_D
+READ attr_C
+READ attr_B
+READ attr_A
+COMMIT 222
+BEGIN 223
+READ attr_B
+READ attr_A
+SET attr_B, attr_B + 4
+READ attr_B
+SET attr_A, attr_A - 4
+READ attr_A
+READ attr_B
+READ attr_A
+READ attr_C
+READ attr_D
+SET attr_C, attr_C + 4
+READ attr_C
+SET attr_D, attr_D - 4
+READ attr_D
+READ attr_C
+READ attr_D
+READ attr_A
+READ attr_B
+SET attr_A, attr_A + 4
+READ attr_A
+SET attr_B, attr_B - 4
+READ attr_B
+READ attr_A
+READ attr_B
+READ attr_C
+READ attr_D
+SET attr_C, attr_C + 2
+READ attr_C
+SET attr_D, attr_D - 2
+READ attr_D
+READ attr_C
+READ attr_D
+COMMIT 223
+BEGIN 224
+READ attr_A
+READ attr_B
+READ attr_C
+READ attr_D
+READ attr_D
+READ attr_C
+READ attr_B
+READ attr_A
+COMMIT 224
+BEGIN 225
+READ attr_A
+READ attr_B
+READ attr_C
+READ attr_D
+READ attr_D
+READ attr_C
+READ attr_B
+READ attr_A
+COMMIT 225
+BEGIN 226
+READ attr_D
+READ attr_C
+SET attr_D, attr_D + 7
+READ attr_D
+SET attr_C, attr_C - 7
+READ attr_C
+READ attr_D
+READ attr_C
+COMMIT 226
+BEGIN 227
+READ attr_A
+READ attr_B
+READ attr_C
+READ attr_D
+READ attr_D
+READ attr_C
+READ attr_B
+READ attr_A
+COMMIT 227
+BEGIN 228
+READ attr_A
+READ attr_B
+READ attr_C
+READ attr_D
+READ attr_D
+READ attr_C
+READ attr_B
+READ attr_A
+COMMIT 228
+BEGIN 229
+READ attr_B
+READ attr_A
+SET attr_B, attr_B + 5
+READ attr_B
+SET attr_A, attr_A - 5
+READ attr_A
+READ attr_B
+READ attr_A
+COMMIT 229
+BEGIN 230
+READ attr_A
+READ attr_B
+READ attr_C
+READ attr_D
+READ attr_D
+READ attr_C
+READ attr_B
+READ attr_A
+COMMIT 230
+BEGIN 231
+READ attr_D
+READ attr_C
+SET attr_D, attr_D + 4
+READ attr_D
+SET attr_C, attr_C - 4
+READ attr_C
+READ attr_D
+READ attr_C
+READ attr_A
+READ attr_B
+SET attr_A, attr_A + 2
+READ attr_A
+SET attr_B, attr_B - 2
+READ attr_B
+READ attr_A
+READ attr_B
+READ attr_B
+READ attr_A
+SET attr_B, attr_B + 2
+READ attr_B
+SET attr_A, attr_A - 2
+READ attr_A
+READ attr_B
+READ attr_A
+READ attr_D
+READ attr_C
+SET attr_D, attr_D + 7
+READ attr_D
+SET attr_C, attr_C - 7
+READ attr_C
+READ attr_D
+READ attr_C
+COMMIT 231
+BEGIN 232
+READ attr_D
+READ attr_C
+SET attr_D, attr_D + 6
+READ attr_D
+SET attr_C, attr_C - 6
+READ attr_C
+READ attr_D
+READ attr_C
+READ attr_B
+READ attr_A
+SET attr_B, attr_B + 8
+READ attr_B
+SET attr_A, attr_A - 8
+READ attr_A
+READ attr_B
+READ attr_A
+COMMIT 232
+BEGIN 233
+READ attr_A
+READ attr_B
+READ attr_C
+READ attr_D
+READ attr_D
+READ attr_C
+READ attr_B
+READ attr_A
+COMMIT 233
+BEGIN 234
+READ attr_A
+READ attr_B
+READ attr_C
+READ attr_D
+READ attr_D
+READ attr_C
+READ attr_B
+READ attr_A
+COMMIT 234
+BEGIN 235
+READ attr_A
+READ attr_B
+READ attr_C
+READ attr_D
+READ attr_D
+READ attr_C
+READ attr_B
+READ attr_A
+COMMIT 235
+BEGIN 236
+READ attr_A
+READ attr_B
+READ attr_C
+READ attr_D
+READ attr_D
+READ attr_C
+READ attr_B
+READ attr_A
+COMMIT 236
+BEGIN 237
+READ attr_A
+READ attr_B
+READ attr_C
+READ attr_D
+READ attr_D
+READ attr_C
+READ attr_B
+READ attr_A
+COMMIT 237
+BEGIN 238
+READ attr_A
+READ attr_B
+SET attr_A, attr_A + 1
+READ attr_A
+SET attr_B, attr_B - 1
+READ attr_B
+READ attr_A
+READ attr_B
+READ attr_A
+READ attr_B
+SET attr_A, attr_A + 9
+READ attr_A
+SET attr_B, attr_B - 9
+READ attr_B
+READ attr_A
+READ attr_B
+READ attr_C
+READ attr_D
+SET attr_C, attr_C + 9
+READ attr_C
+SET attr_D, attr_D - 9
+READ attr_D
+READ attr_C
+READ attr_D
+COMMIT 238
+BEGIN 239
+READ attr_A
+READ attr_B
+READ attr_C
+READ attr_D
+READ attr_D
+READ attr_C
+READ attr_B
+READ attr_A
+COMMIT 239
+BEGIN 240
+READ attr_A
+READ attr_B
+READ attr_C
+READ attr_D
+READ attr_D
+READ attr_C
+READ attr_B
+READ attr_A
+COMMIT 240
+BEGIN 241
+READ attr_C
+READ attr_D
+SET attr_C, attr_C + 2
+READ attr_C
+SET attr_D, attr_D - 2
+READ attr_D
+READ attr_C
+READ attr_D
+READ attr_B
+READ attr_A
+SET attr_B, attr_B + 7
+READ attr_B
+SET attr_A, attr_A - 7
+READ attr_A
+READ attr_B
+READ attr_A
+READ attr_B
+READ attr_A
+SET attr_B, attr_B + 8
+READ attr_B
+SET attr_A, attr_A - 8
+READ attr_A
+READ attr_B
+READ attr_A
+COMMIT 241
+BEGIN 242
+READ attr_A
+READ attr_B
+READ attr_C
+READ attr_D
+READ attr_D
+READ attr_C
+READ attr_B
+READ attr_A
+COMMIT 242
+BEGIN 243
+READ attr_A
+READ attr_B
+READ attr_C
+READ attr_D
+READ attr_D
+READ attr_C
+READ attr_B
+READ attr_A
+COMMIT 243
+BEGIN 244
+READ attr_A
+READ attr_B
+READ attr_C
+READ attr_D
+READ attr_D
+READ attr_C
+READ attr_B
+READ attr_A
+COMMIT 244
+BEGIN 245
+READ attr_A
+READ attr_B
+READ attr_C
+READ attr_D
+READ attr_D
+READ attr_C
+READ attr_B
+READ attr_A
+COMMIT 245
+BEGIN 246
+READ attr_C
+READ attr_D
+SET attr_C, attr_C + 6
+READ attr_C
+SET attr_D, attr_D - 6
+READ attr_D
+READ attr_C
+READ attr_D
+READ attr_A
+READ attr_B
+SET attr_A, attr_A + 3
+READ attr_A
+SET attr_B, attr_B - 3
+READ attr_B
+READ attr_A
+READ attr_B
+READ attr_D
+READ attr_C
+SET attr_D, attr_D + 4
+READ attr_D
+SET attr_C, attr_C - 4
+READ attr_C
+READ attr_D
+READ attr_C
+READ attr_B
+READ attr_A
+SET attr_B, attr_B + 7
+READ attr_B
+SET attr_A, attr_A - 7
+READ attr_A
+READ attr_B
+READ attr_A
+READ attr_A
+READ attr_B
+SET attr_A, attr_A + 3
+READ attr_A
+SET attr_B, attr_B - 3
+READ attr_B
+READ attr_A
+READ attr_B
+COMMIT 246
+BEGIN 247
+READ attr_A
+READ attr_B
+READ attr_C
+READ attr_D
+READ attr_D
+READ attr_C
+READ attr_B
+READ attr_A
+COMMIT 247
+BEGIN 248
+READ attr_B
+READ attr_A
+SET attr_B, attr_B + 8
+READ attr_B
+SET attr_A, attr_A - 8
+READ attr_A
+READ attr_B
+READ attr_A
+READ attr_D
+READ attr_C
+SET attr_D, attr_D + 7
+READ attr_D
+SET attr_C, attr_C - 7
+READ attr_C
+READ attr_D
+READ attr_C
+READ attr_B
+READ attr_A
+SET attr_B, attr_B + 9
+READ attr_B
+SET attr_A, attr_A - 9
+READ attr_A
+READ attr_B
+READ attr_A
+COMMIT 248
+BEGIN 249
+READ attr_A
+READ attr_B
+READ attr_C
+READ attr_D
+READ attr_D
+READ attr_C
+READ attr_B
+READ attr_A
+COMMIT 249
+BEGIN 250
+READ attr_A
+READ attr_B
+READ attr_C
+READ attr_D
+READ attr_D
+READ attr_C
+READ attr_B
+READ attr_A
+COMMIT 250
+BEGIN 251
+READ attr_C
+READ attr_D
+SET attr_C, attr_C + 8
+READ attr_C
+SET attr_D, attr_D - 8
+READ attr_D
+READ attr_C
+READ attr_D
+READ attr_C
+READ attr_D
+SET attr_C, attr_C + 4
+READ attr_C
+SET attr_D, attr_D - 4
+READ attr_D
+READ attr_C
+READ attr_D
+READ attr_D
+READ attr_C
+SET attr_D, attr_D + 7
+READ attr_D
+SET attr_C, attr_C - 7
+READ attr_C
+READ attr_D
+READ attr_C
+READ attr_D
+READ attr_C
+SET attr_D, attr_D + 1
+READ attr_D
+SET attr_C, attr_C - 1
+READ attr_C
+READ attr_D
+READ attr_C
+COMMIT 251
+BEGIN 252
+READ attr_A
+READ attr_B
+SET attr_A, attr_A + 7
+READ attr_A
+SET attr_B, attr_B - 7
+READ attr_B
+READ attr_A
+READ attr_B
+READ attr_A
+READ attr_B
+SET attr_A, attr_A + 5
+READ attr_A
+SET attr_B, attr_B - 5
+READ attr_B
+READ attr_A
+READ attr_B
+READ attr_A
+READ attr_B
+SET attr_A, attr_A + 7
+READ attr_A
+SET attr_B, attr_B - 7
+READ attr_B
+READ attr_A
+READ attr_B
+READ attr_A
+READ attr_B
+SET attr_A, attr_A + 9
+READ attr_A
+SET attr_B, attr_B - 9
+READ attr_B
+READ attr_A
+READ attr_B
+COMMIT 252
+BEGIN 253
+READ attr_D
+READ attr_C
+SET attr_D, attr_D + 2
+READ attr_D
+SET attr_C, attr_C - 2
+READ attr_C
+READ attr_D
+READ attr_C
+READ attr_B
+READ attr_A
+SET attr_B, attr_B + 3
+READ attr_B
+SET attr_A, attr_A - 3
+READ attr_A
+READ attr_B
+READ attr_A
+READ attr_A
+READ attr_B
+SET attr_A, attr_A + 4
+READ attr_A
+SET attr_B, attr_B - 4
+READ attr_B
+READ attr_A
+READ attr_B
+COMMIT 253
+BEGIN 254
+READ attr_B
+READ attr_A
+SET attr_B, attr_B + 10
+READ attr_B
+SET attr_A, attr_A - 10
+READ attr_A
+READ attr_B
+READ attr_A
+READ attr_B
+READ attr_A
+SET attr_B, attr_B + 7
+READ attr_B
+SET attr_A, attr_A - 7
+READ attr_A
+READ attr_B
+READ attr_A
+READ attr_B
+READ attr_A
+SET attr_B, attr_B + 3
+READ attr_B
+SET attr_A, attr_A - 3
+READ attr_A
+READ attr_B
+READ attr_A
+READ attr_B
+READ attr_A
+SET attr_B, attr_B + 2
+READ attr_B
+SET attr_A, attr_A - 2
+READ attr_A
+READ attr_B
+READ attr_A
+COMMIT 254
+BEGIN 255
+READ attr_D
+READ attr_C
+SET attr_D, attr_D + 6
+READ attr_D
+SET attr_C, attr_C - 6
+READ attr_C
+READ attr_D
+READ attr_C
+COMMIT 255
+BEGIN 256
+READ attr_A
+READ attr_B
+READ attr_C
+READ attr_D
+READ attr_D
+READ attr_C
+READ attr_B
+READ attr_A
+COMMIT 256
+BEGIN 257
+READ attr_A
+READ attr_B
+READ attr_C
+READ attr_D
+READ attr_D
+READ attr_C
+READ attr_B
+READ attr_A
+COMMIT 257
+BEGIN 258
+READ attr_A
+READ attr_B
+READ attr_C
+READ attr_D
+READ attr_D
+READ attr_C
+READ attr_B
+READ attr_A
+COMMIT 258
+BEGIN 259
+READ attr_A
+READ attr_B
+READ attr_C
+READ attr_D
+READ attr_D
+READ attr_C
+READ attr_B
+READ attr_A
+COMMIT 259
+BEGIN 260
+READ attr_A
+READ attr_B
+SET attr_A, attr_A + 9
+READ attr_A
+SET attr_B, attr_B - 9
+READ attr_B
+READ attr_A
+READ attr_B
+READ attr_D
+READ attr_C
+SET attr_D, attr_D + 7
+READ attr_D
+SET attr_C, attr_C - 7
+READ attr_C
+READ attr_D
+READ attr_C
+READ attr_D
+READ attr_C
+SET attr_D, attr_D + 4
+READ attr_D
+SET attr_C, attr_C - 4
+READ attr_C
+READ attr_D
+READ attr_C
+COMMIT 260
+BEGIN 261
+READ attr_A
+READ attr_B
+READ attr_C
+READ attr_D
+READ attr_D
+READ attr_C
+READ attr_B
+READ attr_A
+COMMIT 261
+BEGIN 262
+READ attr_A
+READ attr_B
+SET attr_A, attr_A + 10
+READ attr_A
+SET attr_B, attr_B - 10
+READ attr_B
+READ attr_A
+READ attr_B
+COMMIT 262
+BEGIN 263
+READ attr_A
+READ attr_B
+READ attr_C
+READ attr_D
+READ attr_D
+READ attr_C
+READ attr_B
+READ attr_A
+COMMIT 263
+BEGIN 264
+READ attr_A
+READ attr_B
+READ attr_C
+READ attr_D
+READ attr_D
+READ attr_C
+READ attr_B
+READ attr_A
+COMMIT 264
+BEGIN 265
+READ attr_A
+READ attr_B
+SET attr_A, attr_A + 6
+READ attr_A
+SET attr_B, attr_B - 6
+READ attr_B
+READ attr_A
+READ attr_B
+COMMIT 265
+BEGIN 266
+READ attr_A
+READ attr_B
+READ attr_C
+READ attr_D
+READ attr_D
+READ attr_C
+READ attr_B
+READ attr_A
+COMMIT 266
+BEGIN 267
+READ attr_A
+READ attr_B
+READ attr_C
+READ attr_D
+READ attr_D
+READ attr_C
+READ attr_B
+READ attr_A
+COMMIT 267
+BEGIN 268
+READ attr_C
+READ attr_D
+SET attr_C, attr_C + 6
+READ attr_C
+SET attr_D, attr_D - 6
+READ attr_D
+READ attr_C
+READ attr_D
+COMMIT 268
+BEGIN 269
+READ attr_A
+READ attr_B
+READ attr_C
+READ attr_D
+READ attr_D
+READ attr_C
+READ attr_B
+READ attr_A
+COMMIT 269
+BEGIN 270
+READ attr_A
+READ attr_B
+SET attr_A, attr_A + 8
+READ attr_A
+SET attr_B, attr_B - 8
+READ attr_B
+READ attr_A
+READ attr_B
+COMMIT 270
+BEGIN 271
+READ attr_D
+READ attr_C
+SET attr_D, attr_D + 3
+READ attr_D
+SET attr_C, attr_C - 3
+READ attr_C
+READ attr_D
+READ attr_C
+READ attr_C
+READ attr_D
+SET attr_C, attr_C + 9
+READ attr_C
+SET attr_D, attr_D - 9
+READ attr_D
+READ attr_C
+READ attr_D
+COMMIT 271
+BEGIN 272
+READ attr_A
+READ attr_B
+READ attr_C
+READ attr_D
+READ attr_D
+READ attr_C
+READ attr_B
+READ attr_A
+COMMIT 272
+BEGIN 273
+READ attr_A
+READ attr_B
+SET attr_A, attr_A + 8
+READ attr_A
+SET attr_B, attr_B - 8
+READ attr_B
+READ attr_A
+READ attr_B
+READ attr_B
+READ attr_A
+SET attr_B, attr_B + 6
+READ attr_B
+SET attr_A, attr_A - 6
+READ attr_A
+READ attr_B
+READ attr_A
+READ attr_C
+READ attr_D
+SET attr_C, attr_C + 3
+READ attr_C
+SET attr_D, attr_D - 3
+READ attr_D
+READ attr_C
+READ attr_D
+READ attr_C
+READ attr_D
+SET attr_C, attr_C + 3
+READ attr_C
+SET attr_D, attr_D - 3
+READ attr_D
+READ attr_C
+READ attr_D
+READ attr_D
+READ attr_C
+SET attr_D, attr_D + 9
+READ attr_D
+SET attr_C, attr_C - 9
+READ attr_C
+READ attr_D
+READ attr_C
+COMMIT 273
+BEGIN 274
+READ attr_A
+READ attr_B
+READ attr_C
+READ attr_D
+READ attr_D
+READ attr_C
+READ attr_B
+READ attr_A
+COMMIT 274
+BEGIN 275
+READ attr_A
+READ attr_B
+READ attr_C
+READ attr_D
+READ attr_D
+READ attr_C
+READ attr_B
+READ attr_A
+COMMIT 275
+BEGIN 276
+READ attr_B
+READ attr_A
+SET attr_B, attr_B + 3
+READ attr_B
+SET attr_A, attr_A - 3
+READ attr_A
+READ attr_B
+READ attr_A
+COMMIT 276
+BEGIN 277
+READ attr_A
+READ attr_B
+READ attr_C
+READ attr_D
+READ attr_D
+READ attr_C
+READ attr_B
+READ attr_A
+COMMIT 277
+BEGIN 278
+READ attr_C
+READ attr_D
+SET attr_C, attr_C + 5
+READ attr_C
+SET attr_D, attr_D - 5
+READ attr_D
+READ attr_C
+READ attr_D
+READ attr_C
+READ attr_D
+SET attr_C, attr_C + 3
+READ attr_C
+SET attr_D, attr_D - 3
+READ attr_D
+READ attr_C
+READ attr_D
+READ attr_A
+READ attr_B
+SET attr_A, attr_A + 1
+READ attr_A
+SET attr_B, attr_B - 1
+READ attr_B
+READ attr_A
+READ attr_B
+READ attr_A
+READ attr_B
+SET attr_A, attr_A + 2
+READ attr_A
+SET attr_B, attr_B - 2
+READ attr_B
+READ attr_A
+READ attr_B
+READ attr_C
+READ attr_D
+SET attr_C, attr_C + 2
+READ attr_C
+SET attr_D, attr_D - 2
+READ attr_D
+READ attr_C
+READ attr_D
+COMMIT 278
+BEGIN 279
+READ attr_A
+READ attr_B
+READ attr_C
+READ attr_D
+READ attr_D
+READ attr_C
+READ attr_B
+READ attr_A
+COMMIT 279
+BEGIN 280
+READ attr_A
+READ attr_B
+SET attr_A, attr_A + 1
+READ attr_A
+SET attr_B, attr_B - 1
+READ attr_B
+READ attr_A
+READ attr_B
+READ attr_A
+READ attr_B
+SET attr_A, attr_A + 5
+READ attr_A
+SET attr_B, attr_B - 5
+READ attr_B
+READ attr_A
+READ attr_B
+READ attr_A
+READ attr_B
+SET attr_A, attr_A + 7
+READ attr_A
+SET attr_B, attr_B - 7
+READ attr_B
+READ attr_A
+READ attr_B
+READ attr_C
+READ attr_D
+SET attr_C, attr_C + 10
+READ attr_C
+SET attr_D, attr_D - 10
+READ attr_D
+READ attr_C
+READ attr_D
+COMMIT 280
+BEGIN 281
+READ attr_A
+READ attr_B
+READ attr_C
+READ attr_D
+READ attr_D
+READ attr_C
+READ attr_B
+READ attr_A
+COMMIT 281
+BEGIN 282
+READ attr_D
+READ attr_C
+SET attr_D, attr_D + 4
+READ attr_D
+SET attr_C, attr_C - 4
+READ attr_C
+READ attr_D
+READ attr_C
+READ attr_A
+READ attr_B
+SET attr_A, attr_A + 5
+READ attr_A
+SET attr_B, attr_B - 5
+READ attr_B
+READ attr_A
+READ attr_B
+COMMIT 282
+BEGIN 283
+READ attr_C
+READ attr_D
+SET attr_C, attr_C + 9
+READ attr_C
+SET attr_D, attr_D - 9
+READ attr_D
+READ attr_C
+READ attr_D
+READ attr_C
+READ attr_D
+SET attr_C, attr_C + 8
+READ attr_C
+SET attr_D, attr_D - 8
+READ attr_D
+READ attr_C
+READ attr_D
+COMMIT 283
+BEGIN 284
+READ attr_D
+READ attr_C
+SET attr_D, attr_D + 1
+READ attr_D
+SET attr_C, attr_C - 1
+READ attr_C
+READ attr_D
+READ attr_C
+COMMIT 284
+BEGIN 285
+READ attr_C
+READ attr_D
+SET attr_C, attr_C + 9
+READ attr_C
+SET attr_D, attr_D - 9
+READ attr_D
+READ attr_C
+READ attr_D
+READ attr_B
+READ attr_A
+SET attr_B, attr_B + 8
+READ attr_B
+SET attr_A, attr_A - 8
+READ attr_A
+READ attr_B
+READ attr_A
+READ attr_C
+READ attr_D
+SET attr_C, attr_C + 3
+READ attr_C
+SET attr_D, attr_D - 3
+READ attr_D
+READ attr_C
+READ attr_D
+COMMIT 285
+BEGIN 286
+READ attr_A
+READ attr_B
+SET attr_A, attr_A + 6
+READ attr_A
+SET attr_B, attr_B - 6
+READ attr_B
+READ attr_A
+READ attr_B
+READ attr_C
+READ attr_D
+SET attr_C, attr_C + 2
+READ attr_C
+SET attr_D, attr_D - 2
+READ attr_D
+READ attr_C
+READ attr_D
+READ attr_C
+READ attr_D
+SET attr_C, attr_C + 4
+READ attr_C
+SET attr_D, attr_D - 4
+READ attr_D
+READ attr_C
+READ attr_D
+COMMIT 286
+BEGIN 287
+READ attr_D
+READ attr_C
+SET attr_D, attr_D + 2
+READ attr_D
+SET attr_C, attr_C - 2
+READ attr_C
+READ attr_D
+READ attr_C
+READ attr_D
+READ attr_C
+SET attr_D, attr_D + 1
+READ attr_D
+SET attr_C, attr_C - 1
+READ attr_C
+READ attr_D
+READ attr_C
+COMMIT 287
+BEGIN 288
+READ attr_A
+READ attr_B
+READ attr_C
+READ attr_D
+READ attr_D
+READ attr_C
+READ attr_B
+READ attr_A
+COMMIT 288
+BEGIN 289
+READ attr_B
+READ attr_A
+SET attr_B, attr_B + 1
+READ attr_B
+SET attr_A, attr_A - 1
+READ attr_A
+READ attr_B
+READ attr_A
+COMMIT 289
+BEGIN 290
+READ attr_A
+READ attr_B
+READ attr_C
+READ attr_D
+READ attr_D
+READ attr_C
+READ attr_B
+READ attr_A
+COMMIT 290
+BEGIN 291
+READ attr_C
+READ attr_D
+SET attr_C, attr_C + 3
+READ attr_C
+SET attr_D, attr_D - 3
+READ attr_D
+READ attr_C
+READ attr_D
+COMMIT 291
+BEGIN 292
+READ attr_A
+READ attr_B
+READ attr_C
+READ attr_D
+READ attr_D
+READ attr_C
+READ attr_B
+READ attr_A
+COMMIT 292
+BEGIN 293
+READ attr_B
+READ attr_A
+SET attr_B, attr_B + 3
+READ attr_B
+SET attr_A, attr_A - 3
+READ attr_A
+READ attr_B
+READ attr_A
+COMMIT 293
+BEGIN 294
+READ attr_A
+READ attr_B
+SET attr_A, attr_A + 4
+READ attr_A
+SET attr_B, attr_B - 4
+READ attr_B
+READ attr_A
+READ attr_B
+READ attr_D
+READ attr_C
+SET attr_D, attr_D + 6
+READ attr_D
+SET attr_C, attr_C - 6
+READ attr_C
+READ attr_D
+READ attr_C
+READ attr_D
+READ attr_C
+SET attr_D, attr_D + 2
+READ attr_D
+SET attr_C, attr_C - 2
+READ attr_C
+READ attr_D
+READ attr_C
+READ attr_D
+READ attr_C
+SET attr_D, attr_D + 1
+READ attr_D
+SET attr_C, attr_C - 1
+READ attr_C
+READ attr_D
+READ attr_C
+COMMIT 294
+BEGIN 295
+READ attr_A
+READ attr_B
+READ attr_C
+READ attr_D
+READ attr_D
+READ attr_C
+READ attr_B
+READ attr_A
+COMMIT 295
+BEGIN 296
+READ attr_A
+READ attr_B
+READ attr_C
+READ attr_D
+READ attr_D
+READ attr_C
+READ attr_B
+READ attr_A
+COMMIT 296
+BEGIN 297
+READ attr_B
+READ attr_A
+SET attr_B, attr_B + 10
+READ attr_B
+SET attr_A, attr_A - 10
+READ attr_A
+READ attr_B
+READ attr_A
+READ attr_B
+READ attr_A
+SET attr_B, attr_B + 6
+READ attr_B
+SET attr_A, attr_A - 6
+READ attr_A
+READ attr_B
+READ attr_A
+COMMIT 297
+BEGIN 298
+READ attr_A
+READ attr_B
+SET attr_A, attr_A + 5
+READ attr_A
+SET attr_B, attr_B - 5
+READ attr_B
+READ attr_A
+READ attr_B
+READ attr_B
+READ attr_A
+SET attr_B, attr_B + 6
+READ attr_B
+SET attr_A, attr_A - 6
+READ attr_A
+READ attr_B
+READ attr_A
+COMMIT 298
+BEGIN 299
+READ attr_C
+READ attr_D
+SET attr_C, attr_C + 6
+READ attr_C
+SET attr_D, attr_D - 6
+READ attr_D
+READ attr_C
+READ attr_D
+READ attr_D
+READ attr_C
+SET attr_D, attr_D + 10
+READ attr_D
+SET attr_C, attr_C - 10
+READ attr_C
+READ attr_D
+READ attr_C
+READ attr_D
+READ attr_C
+SET attr_D, attr_D + 1
+READ attr_D
+SET attr_C, attr_C - 1
+READ attr_C
+READ attr_D
+READ attr_C
+READ attr_D
+READ attr_C
+SET attr_D, attr_D + 10
+READ attr_D
+SET attr_C, attr_C - 10
+READ attr_C
+READ attr_D
+READ attr_C
+READ attr_A
+READ attr_B
+SET attr_A, attr_A + 1
+READ attr_A
+SET attr_B, attr_B - 1
+READ attr_B
+READ attr_A
+READ attr_B
+COMMIT 299

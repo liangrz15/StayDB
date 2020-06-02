@@ -9,6 +9,7 @@ extern pthread_mutex_t cout_mutex;
 Worker::Worker(uint _worker_ID): worker_ID(_worker_ID), transaction_active(false){
     logger = log4cplus::Logger::getInstance(LOG4CPLUS_TEXT("worker"));
     lock_manager = LockManager::get_instance();
+    first_transaction_start = false;
     assert(lock_manager != nullptr);
 }
 
@@ -16,6 +17,7 @@ void Worker::execute_file(std::string input_file_name, std::string output_file_n
     std::ifstream in_stream(input_file_name);
     std::ofstream out_stream(output_file_name);
     if(!in_stream){
+        std::cout << input_file_name << " fail to open" << std::endl;
         assert(0);
     }
     LOG4CPLUS_DEBUG(logger, LOG4CPLUS_TEXT("input_file_name: ") << input_file_name);
@@ -125,7 +127,7 @@ void Worker::execute_commands(const std::vector<Command>& commands){
 }
 
 ExecuteStatus Worker::execute_begin(uint transaction_ID){
-    std::cout << "execute_begin " << transaction_ID << std::endl;
+    //std::cout << "execute_begin " << transaction_ID << std::endl;
     assert(transaction_output == "");
     if(transaction_active == false){
         transaction_active = true;
@@ -138,6 +140,10 @@ ExecuteStatus Worker::execute_begin(uint transaction_ID){
     local_map.clear();
     std::string begin_time_nanoseconds;
     executor.reset(transaction_ID, &begin_time_nanoseconds);
+    if(!first_transaction_start){
+        first_transaction_start = true;
+        first_begin_time = begin_time_nanoseconds;
+    }
     append_output_row_with_time("BEGIN", begin_time_nanoseconds);
     return EXECUTE_NORMAL;
 }
@@ -265,6 +271,7 @@ ExecuteStatus Worker::execute_commit(uint transaction_ID){
     executor_error_t err = executor.commit(&commit_time_nanosecond);
     assert(err == ERROR_NONE);
     append_output_row_with_time("END", commit_time_nanosecond);
+    last_end_time = commit_time_nanosecond;
     return EXECUTE_COMMIT;
 }
 
@@ -283,4 +290,9 @@ void Worker::append_output_row(std::string type, int value){
 void Worker::append_output_row_with_time(std::string type, const std::string& time_nanosecond){
     std::string row = std::to_string(transaction_ID) + "," + type + "," + time_nanosecond + "," + "\n";
     transaction_output += row;
+}
+
+void Worker::print_execute_info(){
+    std::cout << "thread " << worker_ID << ", first begin time: " 
+        << first_begin_time << ", last commit time: " << last_end_time << std::endl;
 }

@@ -5,6 +5,7 @@
 PageManager* PageManager::instance = nullptr;
 
 PageManager::PageManager(){
+    logger = log4cplus::Logger::getInstance(LOG4CPLUS_TEXT("page_manager"));
     data_pool_manager = new PoolManager(DATA_POOL_SIZE, PAGE_SIZE, DATA_POOL_MAX_FD);
     log_pool_manager = new PoolManager(LOG_POOL_SIZE, PAGE_SIZE, LOG_POOL_MAX_FD);
 }
@@ -38,6 +39,7 @@ void PageManager::mark_page_dirty(int pool_page_ID){
 }
 
 void PageManager::flush_all_pages(){
+    LOG4CPLUS_DEBUG(logger, LOG4CPLUS_TEXT("data pool flush all pages"));
     data_pool_manager->flush_all_pages();
 }
 

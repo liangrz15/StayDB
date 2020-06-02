@@ -37,8 +37,12 @@ $(BUILD_DIR)/%.cpp.o: %.cpp
 clean:
 	$(RM) -r $(BUILD_DIR)
 
-run:
+clean_and_run:
 	-rm -r db
+	-rm logging.txt
+	./build/a.out
+
+run:
 	-rm logging.txt
 	./build/a.out
 

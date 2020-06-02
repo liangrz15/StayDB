@@ -419,7 +419,7 @@ void Executor::insert_index(const std::string& hash, const std::string& key, uin
     uint index_page_ID = header_page->n_index_pages;
     int index_page_pool_ID = page_manager->get_page(hash, INDEX_TYPE, index_page_ID, (void**)&index_page);
     memset(index_page, 0, PAGE_SIZE);
-    page_manager->flush_page(index_page_ID);
+    page_manager->flush_page(index_page_pool_ID);
     page_manager->release_page(index_page_pool_ID);
 
     HeaderFilePage* backup_page = nullptr;

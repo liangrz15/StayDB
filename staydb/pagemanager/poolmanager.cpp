@@ -95,6 +95,7 @@ void PoolManager::flush_page(int pool_page_ID){
 }
 
 void PoolManager::_flush_page(int pool_page_ID){
+    LOG4CPLUS_DEBUG(logger, LOG4CPLUS_TEXT("flush pool_page_ID: ") << pool_page_ID);
     assert(!free_bitmap[pool_page_ID]);
     PageMetadata& page_metadata = page_metadata_array[pool_page_ID];
     int fd = file_metadata[page_metadata.file_name].fd;

@@ -46,6 +46,7 @@ class Worker{
 public:
     void execute_file(std::string input_file_name, std::string output_file_name);
     Worker(uint worker_ID);
+    void print_execute_info();
 
 private:
     log4cplus::Logger logger;
@@ -66,5 +67,8 @@ private:
     bool transaction_active;
     executor_error_t get_value_for_key(const std::string& key, int* value);
     void append_output_row_with_time(std::string type, const std::string& time_nanosecond);
+    bool first_transaction_start;
+    std::string first_begin_time;
+    std::string last_end_time;
 
 };
